@@ -1,0 +1,204 @@
+================================================================================
+ANALYSIS AND DISCUSSION
+================================================================================
+
+ALGORITHM COMPARISON:
+
+1. BREADTH-FIRST SEARCH (BFS):
+   Advantages:
+   - Guarantees shortest path in terms of number of stations (hops)
+   - Complete: will find a solution if one exists
+   - Simple to implement
+
+   Disadvantages:
+   - Does not consider edge weights (travel time)
+   - High memory usage (stores all nodes at current level)
+   - Expands many unnecessary nodes
+
+2. DEPTH-FIRST SEARCH (DFS):
+   Advantages:
+   - Low memory usage (only stores path to current node)
+   - Fast for deep graphs
+
+   Disadvantages:
+   - Does not guarantee optimal path
+   - May get stuck in deep branches
+   - Not suitable for route planning where optimality is important
+
+3. GREEDY BEST-FIRST SEARCH (GBFS):
+   Advantages:
+   - Often faster than BFS/DFS due to heuristic guidance
+   - Expands fewer nodes by focusing on goal
+   - Uses domain knowledge (coordinates)
+
+   Disadvantages:
+   - Does not guarantee optimal path
+   - Performance depends heavily on heuristic quality
+   - Can be misled by heuristic
+
+4. A* SEARCH:
+   Advantages:
+   - Guarantees optimal path (with admissible heuristic)
+   - Efficient: expands minimal nodes needed for optimal solution
+   - Balances actual cost and estimated remaining cost
+
+   Disadvantages:
+   - Requires good heuristic function
+   - Higher memory usage than GBFS
+   - More computationally expensive per node
+
+COST FUNCTION:
+- Base cost: Travel time between stations (2-4 minutes)
+- Transfer penalty: +{TRANSFER_PENALTY_MINUTES} minutes when changing lines
+- Optional crowding penalty: Can be added based on conditions
+
+HEURISTIC FUNCTION (for GBFS and A*):
+- Straight-line distance using Haversine formula
+- Converted to time estimate (assuming {AVERAGE_MRT_SPEED_KMH} km/h average speed)
+- Admissible: never overestimates actual cost
+- Consistent: satisfies triangle inequality
+
+PERFORMANCE OBSERVATIONS:
+- A* typically finds optimal paths with fewer node expansions than BFS
+- GBFS is fastest but may not find optimal path
+- DFS is unsuitable for this application
+- Future mode adds new connections, reducing travel times to T5
+
+CHALLENGES:
+
+1. Knowledge Representation:
+   - Translating real-world MRT rules into propositional logic
+   - Balancing expressiveness with computational tractability
+   - Handling temporal aspects (schedules, time windows)
+
+2. Completeness vs Scalability:
+   - Resolution can be exhaustive for large knowledge bases
+   - Need to limit iterations to prevent infinite loops
+   - Trade-off between finding all inferences and performance
+
+3. Ambiguity in Natural Language:
+   - "Reduced service" can mean different things
+   - Rules may have implicit conditions not captured in logic
+   - Context-dependent interpretations
+
+4. Contradiction Detection:
+   - Multiple sources of truth (schedules, advisories, real-time data)
+   - Temporary vs permanent contradictions
+   - Priority/confidence levels not captured in basic propositional logic
+
+IMPROVEMENTS:
+
+1. Use First-Order Logic:
+   - Express rules about "all stations" or "any line"
+   - More expressive than propositional logic
+   - E.g., ∀x (Station(x) ∧ UnderMaintenance(x) → ~Operational(x))
+
+2. Add Probabilistic Reasoning:
+   - Handle uncertain information
+   - Bayesian networks for combined logical + probabilistic reasoning
+   - Confidence levels for inferences
+
+3. Temporal Logic:
+   - Express "service will be suspended from 10am to 2pm"
+   - Reason about sequences of events
+   - Handle scheduled maintenance vs disruptions
+
+4. Optimize Resolution:
+   - Use unit preference strategy
+   - Set-of-support strategy for focused reasoning
+   - Implement subsumption to remove redundant clauses
+
+5. Natural Language Interface:
+   - Allow queries in plain English
+   - Automatically translate to logical form
+   - Generate human-readable explanations
+
+6. Integration with Real Data:
+   - Connect to LTA APIs for real-time service status
+   - Automatically update knowledge base
+   - Cross-check advisories against actual operations
+
+7. Explanation Generation:
+   - Provide step-by-step reasoning
+   - Highlight which rules were applied
+   - Show alternative valid scenarios
+
+REAL-WORLD APPLICATION:
+
+This system can help:
+- Operations teams validate service advisories before publishing
+- Automatically detect contradictory announcements
+- Suggest alternative routes when inconsistencies are found
+- Train new staff on complex service rules
+- Audit historical advisories for consistency
+
+================================================================================
+DISCUSSION: CHALLENGES AND IMPROVEMENTS
+================================================================================
+CHALLENGES:
+
+1. Knowledge Representation:
+   - Translating real-world MRT rules into propositional logic
+   - Balancing expressiveness with computational tractability
+   - Handling temporal aspects (schedules, time windows)
+
+2. Completeness vs Scalability:
+   - Resolution can be exhaustive for large knowledge bases
+   - Need to limit iterations to prevent infinite loops
+   - Trade-off between finding all inferences and performance
+
+3. Ambiguity in Natural Language:
+   - "Reduced service" can mean different things
+   - Rules may have implicit conditions not captured in logic
+   - Context-dependent interpretations
+
+4. Contradiction Detection:
+   - Multiple sources of truth (schedules, advisories, real-time data)
+   - Temporary vs permanent contradictions
+   - Priority/confidence levels not captured in basic propositional logic
+
+IMPROVEMENTS:
+
+1. Use First-Order Logic:
+   - Express rules about "all stations" or "any line"
+   - More expressive than propositional logic
+   - E.g., ∀x (Station(x) ∧ UnderMaintenance(x) → ~Operational(x))
+
+2. Add Probabilistic Reasoning:
+   - Handle uncertain information
+   - Bayesian networks for combined logical + probabilistic reasoning
+   - Confidence levels for inferences
+
+3. Temporal Logic:
+   - Express "service will be suspended from 10am to 2pm"
+   - Reason about sequences of events
+   - Handle scheduled maintenance vs disruptions
+
+4. Optimize Resolution:
+   - Use unit preference strategy
+   - Set-of-support strategy for focused reasoning
+   - Implement subsumption to remove redundant clauses
+
+5. Natural Language Interface:
+   - Allow queries in plain English
+   - Automatically translate to logical form
+   - Generate human-readable explanations
+
+6. Integration with Real Data:
+   - Connect to LTA APIs for real-time service status
+   - Automatically update knowledge base
+   - Cross-check advisories against actual operations
+
+7. Explanation Generation:
+   - Provide step-by-step reasoning
+   - Highlight which rules were applied
+   - Show alternative valid scenarios
+
+REAL-WORLD APPLICATION:
+
+This system can help:
+- Operations teams validate service advisories before publishing
+- Automatically detect contradictory announcements
+- Suggest alternative routes when inconsistencies are found
+- Train new staff on complex service rules
+- Audit historical advisories for consistency

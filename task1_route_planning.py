@@ -1,9 +1,3 @@
-"""
-Task 1: Route Planning with Search Algorithms
-Implements BFS, DFS, GBFS, and A* for MRT route planning
-Supports both Today Mode and Future Mode (with TELe/CRL)
-"""
-
 import heapq
 import time
 import math

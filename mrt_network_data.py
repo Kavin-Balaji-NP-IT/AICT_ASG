@@ -1,10 +1,3 @@
-"""
-MRT Network Data Configuration
-Contains station coordinates and network connections for both Today and Future modes
-"""
-
-# Station coordinates (latitude, longitude)
-# Used for heuristic calculation in pathfinding algorithms
 STATION_COORDINATES = {
     # East-West Line & TEL stations
     "Changi Airport": (1.3574, 103.9886),
@@ -87,15 +80,14 @@ STATION_COORDINATES = {
     "Bedok South": (1.3212, 103.9392),
     
     # Future stations
-    "Changi Terminal 5": (1.3650, 104.0200),  # Approximate future location
+    "Changi Terminal 5": (1.3650, 104.0200),
     
     # Cross Island Line (future)
     "Punggol": (1.4054, 103.9022),
     "Pasir Ris": (1.3730, 103.9492),
 }
 
-# Network connections for TODAY MODE (current network)
-# Format: List of (station1, station2, travel_time_minutes, line_code)
+
 TODAY_MODE_CONNECTIONS = [
     # East-West Line (Green) - Airport Branch
     ("Pasir Ris", "Tanah Merah", 3, "EWL"),
