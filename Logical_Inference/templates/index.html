@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChangiLink AI - Logical Inference System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #e0e0e0;
+            margin-bottom: 30px;
+        }
+
+        .tab {
+            padding: 15px 25px;
+            background: #f8f9fa;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            color: #666;
+            border-radius: 10px 10px 0 0;
+            margin-right: 5px;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: #3498db;
+            color: white;
+        }
+
+        .tab:hover:not(.active) {
+            background: #e9ecef;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 25px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            background: #fafafa;
+        }
+
+        .section h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .form-control.textarea {
+            min-height: 100px;
+            resize: vertical;
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #229954;
+        }
+
+        .btn-warning {
+            background: #f39c12;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #e67e22;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-weight: 600;
+        }
+
+        .status.info {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status.loading {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .status.success {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .results {
+            margin-top: 30px;
+            padding: 25px;
+            background: white;
+            border-radius: 10px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .results h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+        }
+
+        .result-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+
+        .result-section h4 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .result-valid {
+            border-left: 4px solid #27ae60;
+        }
+
+        .result-invalid {
+            border-left: 4px solid #e74c3c;
+        }
+
+        .result-warning {
+            border-left: 4px solid #f39c12;
+        }
+
+        .violations-list {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+
+        .violation-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .violation-item:last-child {
+            border-bottom: none;
+        }
+
+        .notes-list {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+
+        .note-item {
+            padding: 5px 0;
+            color: #666;
+        }
+
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .preset-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .preset-card:hover {
+            border-color: #3498db;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .preset-card h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .preset-card p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .rules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .rule-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .rule-card h4 {
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+
+        .rule-card .rule-description {
+            color: #666;
+            margin-bottom: 10px;
+            font-style: italic;
+        }
+
+        .rule-card .rule-logic {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .tabs {
+                flex-wrap: wrap;
+            }
+
+            .tab {
+                flex: 1;
+                min-width: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧠 ChangiLink AI - Logical Inference</h1>
+            <p>Service Advisory Consistency Checking & Route Validation</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Tab Navigation -->
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('scenario')">Scenario Builder</button>
+                <button class="tab" onclick="showTab('route')">Route Evaluation</button>
+                <button class="tab" onclick="showTab('presets')">Test Scenarios</button>
+                <button class="tab" onclick="showTab('rules')">Logical Rules</button>
+            </div>
+
+            <!-- Scenario Builder Tab -->
+            <div id="scenario-tab" class="tab-content active">
+                <div class="section">
+                    <h3>Network Configuration</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="mode">Network Mode</label>
+                            <select id="mode" class="form-control">
+                                <option value="today">Today's Network</option>
+                                <option value="future">Future Network</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="status">Service Status</label>
+                            <select id="status" class="form-control">
+                                <option value="normal">Normal</option>
+                                <option value="delay">Delay</option>
+                                <option value="disrupted">Disrupted</option>
+                                <option value="scheduled_maintenance">Scheduled Maintenance</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="integration_works">
+                        <label for="integration_works">Systems Integration Work Ongoing</label>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Station & Service Configuration</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="exists">Existing Stations (comma-separated)</label>
+                            <textarea id="exists" class="form-control textarea" placeholder="TanahMerah, Expo, ChangiAirport, T5"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="open_stations">Open Stations (comma-separated)</label>
+                            <textarea id="open_stations" class="form-control textarea" placeholder="TanahMerah, Expo, ChangiAirport"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="open_edges">Open Connections (one per line)</label>
+                            <textarea id="open_edges" class="form-control textarea" placeholder="TanahMerah,Expo&#10;Expo,ChangiAirport"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="recommended_routes">Recommended Routes (comma-separated)</label>
+                            <textarea id="recommended_routes" class="form-control textarea" placeholder="EWL_AirportBranch, TEL_Extension"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="served_by_tel">Stations Served by TEL (comma-separated)</label>
+                        <textarea id="served_by_tel" class="form-control textarea" placeholder="TanahMerah, Expo, ChangiAirport"></textarea>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Analysis Actions</h3>
+                    <button class="btn btn-primary" onclick="checkConsistency()">🔍 Check Advisory Consistency</button>
+                    <button class="btn btn-success" onclick="evaluateRoute()">🚇 Evaluate Route</button>
+                    <button class="btn btn-warning" onclick="runBothAnalyses()">🔄 Run Both</button>
+                    <button class="btn btn-secondary" onclick="clearOutput()">🗑️ Clear Output</button>
+                </div>
+            </div>
+
+            <!-- Route Evaluation Tab -->
+            <div id="route-tab" class="tab-content">
+                <div class="section">
+                    <h3>Route Definition</h3>
+                    <div class="form-group">
+                        <label for="route_name">Route Name</label>
+                        <input type="text" id="route_name" class="form-control" placeholder="EWL_AirportBranch" value="EWL_AirportBranch">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="route_stations">Route Stations (comma-separated, in order)</label>
+                        <textarea id="route_stations" class="form-control textarea" placeholder="TanahMerah, Expo, ChangiAirport"></textarea>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Route Analysis</h3>
+                    <p><em>Note: Make sure to configure the scenario in the "Scenario Builder" tab first.</em></p>
+                    <button class="btn btn-success" onclick="evaluateRoute()">🚇 Evaluate Route</button>
+                    <button class="btn btn-primary" onclick="runBothAnalyses()">🔄 Run Both</button>
+                    <button class="btn btn-secondary" onclick="clearRoute()">🗑️ Clear Route</button>
+                </div>
+            </div>
+
+            <!-- Test Scenarios Tab -->
+            <div id="presets-tab" class="tab-content">
+                <div class="section">
+                    <h3>Load Preset Scenarios</h3>
+                    <p>Load preset scenario quickly (good for demos/testing):</p>
+                    
+                    <div class="form-group">
+                        <label for="preset-select">Select Preset Scenario</label>
+                        <select id="preset-select" class="form-control">
+                            <option value="">Choose a preset...</option>
+                            <option value="Scenario 1 (A1)">Scenario 1 (A1)</option>
+                            <option value="Scenario 2 (A2)">Scenario 2 (A2)</option>
+                            <option value="Scenario 3 (A3)">Scenario 3 (A3)</option>
+                            <option value="Scenario 4 (A4)">Scenario 4 (A4)</option>
+                            <option value="Scenario 5 (A5)">Scenario 5 (A5)</option>
+                            <option value="Scenario 6 (A6)">Scenario 6 (A6)</option>
+                        </select>
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="loadPresetScenario()">📋 Load Preset</button>
+                    
+                    <div class="section" style="margin-top: 30px;">
+                        <h4>Tip:</h4>
+                        <p>Your assignment requires at least 6 scenarios. You already have A1–A5. Use A6 and tweak it to create another case.</p>
+                        
+                        <h4 style="margin-top: 20px;">Quick Instructions:</h4>
+                        <ol style="margin-left: 20px; color: #666;">
+                            <li>Select a preset scenario from the dropdown above</li>
+                            <li>Click "Load Preset" to populate the scenario and route data</li>
+                            <li>Switch to "Scenario Builder" tab to see the loaded data</li>
+                            <li>Click "Run Both" to execute both consistency check and route evaluation</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Logical Rules Tab -->
+            <div id="rules-tab" class="tab-content">
+                <div class="section">
+                    <h3>Logical Rules Reference</h3>
+                    <p>The system uses these logical rules to validate scenarios and routes:</p>
+                    <div id="rules-grid" class="rules-grid">
+                        <!-- Rules will be populated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status Display -->
+            <div id="status" class="status info" style="display: none;">
+                Ready to analyze scenarios and routes
+            </div>
+
+            <!-- Results Display -->
+            <div id="results" class="results" style="display: none;">
+                <!-- Results will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentTab = 'scenario';
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            loadLogicalRules();
+            showStatus('Ready - Load a preset or configure scenario manually', 'info');
+        });
+
+        async function loadPresetScenario() {
+            const presetName = document.getElementById('preset-select').value;
+            
+            if (!presetName) {
+                showStatus('Please select a preset scenario', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/load-preset/${encodeURIComponent(presetName)}`);
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                const preset = data.preset;
+                
+                // Populate scenario fields
+                document.getElementById('mode').value = preset.mode;
+                document.getElementById('status').value = preset.status;
+                document.getElementById('integration_works').checked = preset.integration_works;
+                document.getElementById('exists').value = preset.exists;
+                document.getElementById('open_stations').value = preset.open_stations;
+                document.getElementById('open_edges').value = preset.open_edges;
+                document.getElementById('recommended_routes').value = preset.recommended_routes;
+                document.getElementById('served_by_tel').value = preset.served_by_tel;
+                
+                // Populate route fields
+                document.getElementById('route_name').value = preset.route_name;
+                document.getElementById('route_stations').value = preset.route_stations;
+                
+                // Clear previous results
+                clearOutput();
+                
+                // Switch to scenario tab
+                showTab('scenario');
+                showStatus(`Loaded preset: ${presetName}. Next: click "Run Both" to analyze.`, 'success');
+                
+            } catch (error) {
+                showStatus(`Error loading preset: ${error.message}`, 'error');
+            }
+        }
+
+        async function runBothAnalyses() {
+            showStatus('Running both analyses...', 'loading');
+            
+            // First check consistency
+            await checkConsistency();
+            
+            // Then evaluate route
+            await evaluateRoute();
+            
+            showStatus('Both analyses completed', 'success');
+        }
+
+        function clearOutput() {
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('results').innerHTML = '';
+        }
+
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabName + '-tab').classList.add('active');
+            
+            // Add active class to selected tab
+            event.target.classList.add('active');
+            
+            currentTab = tabName;
+        }
+
+        function showStatus(message, type = 'info') {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${type}`;
+            status.style.display = 'block';
+        }
+
+        function hideStatus() {
+            document.getElementById('status').style.display = 'none';
+        }
+
+        async function loadLogicalRules() {
+            try {
+                const response = await fetch('/api/rules');
+                const data = await response.json();
+                
+                const grid = document.getElementById('rules-grid');
+                grid.innerHTML = '';
+                
+                data.rules.forEach(rule => {
+                    const card = document.createElement('div');
+                    card.className = 'rule-card';
+                    
+                    card.innerHTML = `
+                        <h4>Rule ${rule.id}</h4>
+                        <div class="rule-description">${rule.description}</div>
+                        <div class="rule-logic">${rule.plain_english}</div>
+                    `;
+                    
+                    grid.appendChild(card);
+                });
+                
+            } catch (error) {
+                console.error('Error loading logical rules:', error);
+            }
+        }
+
+        function getScenarioData() {
+            return {
+                mode: document.getElementById('mode').value,
+                status: document.getElementById('status').value,
+                integration_works: document.getElementById('integration_works').checked,
+                exists: document.getElementById('exists').value,
+                open_stations: document.getElementById('open_stations').value,
+                open_edges: document.getElementById('open_edges').value,
+                recommended_routes: document.getElementById('recommended_routes').value,
+                served_by_tel: document.getElementById('served_by_tel').value
+            };
+        }
+
+        function getRouteData() {
+            return {
+                name: document.getElementById('route_name').value,
+                stations: document.getElementById('route_stations').value
+            };
+        }
+
+        async function checkConsistency() {
+            const scenarioData = getScenarioData();
+            
+            showStatus('Checking advisory consistency...', 'loading');
+            
+            try {
+                const response = await fetch('/api/check-consistency', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(scenarioData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                appendConsistencyResults(data);
+                
+            } catch (error) {
+                showStatus(`Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function evaluateRoute() {
+            const scenarioData = getScenarioData();
+            const routeData = getRouteData();
+            
+            if (!routeData.stations.trim()) {
+                showStatus('Please enter route stations', 'error');
+                return;
+            }
+            
+            showStatus('Evaluating route...', 'loading');
+            
+            try {
+                const response = await fetch('/api/evaluate-route', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        scenario: scenarioData,
+                        route: routeData
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                appendRouteResults(data, routeData.name);
+                
+            } catch (error) {
+                showStatus(`Error: ${error.message}`, 'error');
+            }
+        }
+
+        function appendConsistencyResults(data) {
+            const resultsContainer = document.getElementById('results');
+            
+            // Create results container if it doesn't exist
+            if (resultsContainer.style.display === 'none') {
+                resultsContainer.innerHTML = '<h3>Analysis Results</h3>';
+                resultsContainer.style.display = 'block';
+            }
+            
+            const section = document.createElement('div');
+            section.className = 'result-section';
+            section.style.marginBottom = '20px';
+            
+            // Add consistency check header
+            const header = document.createElement('h4');
+            header.textContent = '=== Advisory Consistency Check ===';
+            header.style.color = '#2c3e50';
+            header.style.marginBottom = '10px';
+            section.appendChild(header);
+            
+            // Add result
+            const resultDiv = document.createElement('div');
+            if (data.consistent) {
+                resultDiv.innerHTML = '<strong>Advisories: CONSISTENT ✅</strong>';
+                resultDiv.style.color = '#27ae60';
+            } else {
+                resultDiv.innerHTML = '<strong>Advisories: INCONSISTENT ❌</strong>';
+                resultDiv.style.color = '#e74c3c';
+            }
+            section.appendChild(resultDiv);
+            
+            // Add violations if any
+            if (data.violations && data.violations.length > 0) {
+                const violationsDiv = document.createElement('div');
+                violationsDiv.innerHTML = `<strong>Rule violations:</strong> ${data.violations.join(', ')}`;
+                violationsDiv.style.color = '#e74c3c';
+                violationsDiv.style.marginTop = '5px';
+                section.appendChild(violationsDiv);
+            }
+            
+            // Add notes
+            if (data.notes && data.notes.length > 0) {
+                data.notes.forEach(note => {
+                    const noteDiv = document.createElement('div');
+                    noteDiv.textContent = `- ${note}`;
+                    noteDiv.style.marginTop = '5px';
+                    noteDiv.style.color = '#666';
+                    section.appendChild(noteDiv);
+                });
+            }
+            
+            // Add blank line
+            const blankDiv = document.createElement('div');
+            blankDiv.innerHTML = '&nbsp;';
+            section.appendChild(blankDiv);
+            
+            resultsContainer.appendChild(section);
+        }
+
+        function appendRouteResults(data, routeName) {
+            const resultsContainer = document.getElementById('results');
+            
+            // Create results container if it doesn't exist
+            if (resultsContainer.style.display === 'none') {
+                resultsContainer.innerHTML = '<h3>Analysis Results</h3>';
+                resultsContainer.style.display = 'block';
+            }
+            
+            const section = document.createElement('div');
+            section.className = 'result-section';
+            section.style.marginBottom = '20px';
+            
+            // Add route evaluation header
+            const header = document.createElement('h4');
+            header.textContent = '=== Route Evaluation ===';
+            header.style.color = '#2c3e50';
+            header.style.marginBottom = '10px';
+            section.appendChild(header);
+            
+            // Add route name
+            const routeDiv = document.createElement('div');
+            routeDiv.innerHTML = `<strong>Route:</strong> ${routeName}`;
+            section.appendChild(routeDiv);
+            
+            // Add result
+            const resultDiv = document.createElement('div');
+            if (data.valid && data.warning) {
+                resultDiv.innerHTML = '<strong>Result: Valid (warning)</strong>';
+                resultDiv.style.color = '#f39c12';
+            } else if (data.valid) {
+                resultDiv.innerHTML = '<strong>Result: Valid</strong>';
+                resultDiv.style.color = '#27ae60';
+            } else {
+                resultDiv.innerHTML = '<strong>Result: Invalid</strong>';
+                resultDiv.style.color = '#e74c3c';
+            }
+            resultDiv.style.marginTop = '5px';
+            section.appendChild(resultDiv);
+            
+            // Add violations if any
+            if (data.violations && data.violations.length > 0) {
+                const violationsDiv = document.createElement('div');
+                violationsDiv.innerHTML = `<strong>Rule violations:</strong> ${data.violations.join(', ')}`;
+                violationsDiv.style.color = '#e74c3c';
+                violationsDiv.style.marginTop = '5px';
+                section.appendChild(violationsDiv);
+            }
+            
+            // Add notes
+            if (data.notes && data.notes.length > 0) {
+                const notesHeader = document.createElement('div');
+                notesHeader.innerHTML = '<strong>Notes:</strong>';
+                notesHeader.style.marginTop = '5px';
+                section.appendChild(notesHeader);
+                
+                data.notes.forEach(note => {
+                    const noteDiv = document.createElement('div');
+                    noteDiv.textContent = `- ${note}`;
+                    noteDiv.style.marginTop = '2px';
+                    noteDiv.style.color = '#666';
+                    section.appendChild(noteDiv);
+                });
+            }
+            
+            // Add blank line
+            const blankDiv = document.createElement('div');
+            blankDiv.innerHTML = '&nbsp;';
+            section.appendChild(blankDiv);
+            
+            resultsContainer.appendChild(section);
+        }
+
+        async function runFullAnalysis() {
+            const scenarioData = getScenarioData();
+            const routeData = getRouteData();
+            
+            if (!routeData.stations.trim()) {
+                showStatus('Please enter route stations', 'error');
+                return;
+            }
+            
+            showStatus('Running full analysis...', 'loading');
+            
+            try {
+                const response = await fetch('/api/run-full-analysis', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        scenario: scenarioData,
+                        route: routeData
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                displayFullResults(data);
+                showStatus('Full analysis completed', 'success');
+                
+            } catch (error) {
+                showStatus(`Error: ${error.message}`, 'error');
+            }
+        }
+
+        function displayConsistencyResults(data) {
+            const resultsContainer = document.getElementById('results');
+            resultsContainer.innerHTML = '';
+            
+            const header = document.createElement('h3');
+            header.textContent = 'Advisory Consistency Results';
+            resultsContainer.appendChild(header);
+            
+            const section = document.createElement('div');
+            section.className = `result-section ${data.consistent ? 'result-valid' : 'result-invalid'}`;
+            
+            const title = document.createElement('h4');
+            title.textContent = `Advisory Consistency: ${data.consistent ? 'CONSISTENT ✅' : 'INCONSISTENT ❌'}`;
+            section.appendChild(title);
+            
+            if (data.violations && data.violations.length > 0) {
+                const violationsDiv = document.createElement('div');
+                violationsDiv.className = 'violations-list';
+                violationsDiv.innerHTML = `<strong>Rule Violations:</strong> ${data.violations.join(', ')}`;
+                section.appendChild(violationsDiv);
+            }
+            
+            if (data.notes && data.notes.length > 0) {
+                const notesDiv = document.createElement('div');
+                notesDiv.className = 'notes-list';
+                notesDiv.innerHTML = '<strong>Notes:</strong>';
+                data.notes.forEach(note => {
+                    const noteItem = document.createElement('div');
+                    noteItem.className = 'note-item';
+                    noteItem.textContent = `• ${note}`;
+                    notesDiv.appendChild(noteItem);
+                });
+                section.appendChild(notesDiv);
+            }
+            
+            resultsContainer.appendChild(section);
+            resultsContainer.style.display = 'block';
+        }
+
+        function displayRouteResults(data) {
+            const resultsContainer = document.getElementById('results');
+            resultsContainer.innerHTML = '';
+            
+            const header = document.createElement('h3');
+            header.textContent = 'Route Evaluation Results';
+            resultsContainer.appendChild(header);
+            
+            const section = document.createElement('div');
+            let resultClass = 'result-invalid';
+            let resultText = 'INVALID ❌';
+            
+            if (data.valid && data.warning) {
+                resultClass = 'result-warning';
+                resultText = 'VALID (WARNING) ⚠️';
+            } else if (data.valid) {
+                resultClass = 'result-valid';
+                resultText = 'VALID ✅';
+            }
+            
+            section.className = `result-section ${resultClass}`;
+            
+            const title = document.createElement('h4');
+            title.textContent = `Route Status: ${resultText}`;
+            section.appendChild(title);
+            
+            if (data.violations && data.violations.length > 0) {
+                const violationsDiv = document.createElement('div');
+                violationsDiv.className = 'violations-list';
+                violationsDiv.innerHTML = `<strong>Rule Violations:</strong> ${data.violations.join(', ')}`;
+                section.appendChild(violationsDiv);
+            }
+            
+            if (data.notes && data.notes.length > 0) {
+                const notesDiv = document.createElement('div');
+                notesDiv.className = 'notes-list';
+                notesDiv.innerHTML = '<strong>Notes:</strong>';
+                data.notes.forEach(note => {
+                    const noteItem = document.createElement('div');
+                    noteItem.className = 'note-item';
+                    noteItem.textContent = `• ${note}`;
+                    notesDiv.appendChild(noteItem);
+                });
+                section.appendChild(notesDiv);
+            }
+            
+            resultsContainer.appendChild(section);
+            resultsContainer.style.display = 'block';
+        }
+
+        function displayFullResults(data) {
+            const resultsContainer = document.getElementById('results');
+            resultsContainer.innerHTML = '';
+            
+            const header = document.createElement('h3');
+            header.textContent = 'Full Analysis Results';
+            resultsContainer.appendChild(header);
+            
+            // Display consistency results
+            const consistencySection = document.createElement('div');
+            consistencySection.className = `result-section ${data.consistency.consistent ? 'result-valid' : 'result-invalid'}`;
+            
+            const consistencyTitle = document.createElement('h4');
+            consistencyTitle.textContent = `Advisory Consistency: ${data.consistency.consistent ? 'CONSISTENT ✅' : 'INCONSISTENT ❌'}`;
+            consistencySection.appendChild(consistencyTitle);
+            
+            if (data.consistency.violations && data.consistency.violations.length > 0) {
+                const violationsDiv = document.createElement('div');
+                violationsDiv.className = 'violations-list';
+                violationsDiv.innerHTML = `<strong>Rule Violations:</strong> ${data.consistency.violations.join(', ')}`;
+                consistencySection.appendChild(violationsDiv);
+            }
+            
+            if (data.consistency.notes && data.consistency.notes.length > 0) {
+                const notesDiv = document.createElement('div');
+                notesDiv.className = 'notes-list';
+                notesDiv.innerHTML = '<strong>Notes:</strong>';
+                data.consistency.notes.forEach(note => {
+                    const noteItem = document.createElement('div');
+                    noteItem.className = 'note-item';
+                    noteItem.textContent = `• ${note}`;
+                    notesDiv.appendChild(noteItem);
+                });
+                consistencySection.appendChild(notesDiv);
+            }
+            
+            resultsContainer.appendChild(consistencySection);
+            
+            // Display route results
+            const routeSection = document.createElement('div');
+            let resultClass = 'result-invalid';
+            let resultText = 'INVALID ❌';
+            
+            if (data.route.valid && data.route.warning) {
+                resultClass = 'result-warning';
+                resultText = 'VALID (WARNING) ⚠️';
+            } else if (data.route.valid) {
+                resultClass = 'result-valid';
+                resultText = 'VALID ✅';
+            }
+            
+            routeSection.className = `result-section ${resultClass}`;
+            
+            const routeTitle = document.createElement('h4');
+            routeTitle.textContent = `Route Status: ${resultText}`;
+            routeSection.appendChild(routeTitle);
+            
+            if (data.route.violations && data.route.violations.length > 0) {
+                const violationsDiv = document.createElement('div');
+                violationsDiv.className = 'violations-list';
+                violationsDiv.innerHTML = `<strong>Rule Violations:</strong> ${data.route.violations.join(', ')}`;
+                routeSection.appendChild(violationsDiv);
+            }
+            
+            if (data.route.notes && data.route.notes.length > 0) {
+                const notesDiv = document.createElement('div');
+                notesDiv.className = 'notes-list';
+                notesDiv.innerHTML = '<strong>Notes:</strong>';
+                data.route.notes.forEach(note => {
+                    const noteItem = document.createElement('div');
+                    noteItem.className = 'note-item';
+                    noteItem.textContent = `• ${note}`;
+                    notesDiv.appendChild(noteItem);
+                });
+                routeSection.appendChild(notesDiv);
+            }
+            
+            resultsContainer.appendChild(routeSection);
+            resultsContainer.style.display = 'block';
+        }
+
+        function clearScenario() {
+            document.getElementById('mode').value = 'today';
+            document.getElementById('status').value = 'normal';
+            document.getElementById('integration_works').checked = false;
+            document.getElementById('exists').value = '';
+            document.getElementById('open_stations').value = '';
+            document.getElementById('open_edges').value = '';
+            document.getElementById('recommended_routes').value = '';
+            document.getElementById('served_by_tel').value = '';
+            
+            document.getElementById('results').style.display = 'none';
+            showStatus('Scenario cleared', 'info');
+        }
+
+        function clearRoute() {
+            document.getElementById('route_name').value = 'EWL_AirportBranch';
+            document.getElementById('route_stations').value = '';
+            
+            showStatus('Route cleared', 'info');
+        }
+    </script>
+</body>
+</html>
