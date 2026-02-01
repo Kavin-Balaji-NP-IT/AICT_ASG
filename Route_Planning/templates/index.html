@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Singapore MRT Route Planner</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 25px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            background: #fafafa;
+        }
+
+        .section h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .radio-item input[type="radio"] {
+            width: 18px;
+            height: 18px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #229954;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .test-routes {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-weight: 600;
+        }
+
+        .status.info {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status.loading {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .results {
+            margin-top: 30px;
+            padding: 25px;
+            background: white;
+            border-radius: 10px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .results h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+        }
+
+        .algorithm-result {
+            margin-bottom: 25px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+
+        .algorithm-result h4 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .path-display {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #3498db;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .stat-item {
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        .stat-value {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+
+        .detailed-route {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+
+        .route-step {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .route-step:last-child {
+            border-bottom: none;
+        }
+
+        .route-step.transfer {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .route-step.line-start {
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .swap-btn {
+            background: #f39c12;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 10px 0;
+        }
+
+        .swap-btn:hover {
+            background: #e67e22;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .radio-group {
+                flex-direction: column;
+            }
+
+            .test-routes {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚇 Singapore MRT Route Planner</h1>
+            <p>Find the best route using advanced search algorithms</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Network Mode Selection -->
+            <div class="section">
+                <h3>Network Mode</h3>
+                <div class="radio-group">
+                    <div class="radio-item">
+                        <input type="radio" id="mode-today" name="mode" value="today" checked>
+                        <label for="mode-today">Today's Network</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" id="mode-future" name="mode" value="future">
+                        <label for="mode-future">Future Network (with TEL Extension & CRL)</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Route Planning -->
+            <div class="section">
+                <h3>Route Planning</h3>
+                <div class="form-group">
+                    <label for="origin">From Station:</label>
+                    <select id="origin" class="form-control">
+                        <option value="">Select origin station...</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="destination">To Station:</label>
+                    <select id="destination" class="form-control">
+                        <option value="">Select destination station...</option>
+                    </select>
+                </div>
+
+                <button class="swap-btn" onclick="swapStations()">⇅ Swap Stations</button>
+            </div>
+
+            <!-- Algorithm Selection -->
+            <div class="section">
+                <h3>Search Algorithm</h3>
+                <div class="radio-group">
+                    <div class="radio-item">
+                        <input type="radio" id="algo-all" name="algorithm" value="all" checked>
+                        <label for="algo-all">All Algorithms (Compare)</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" id="algo-bfs" name="algorithm" value="BFS">
+                        <label for="algo-bfs">Breadth-First Search (BFS)</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" id="algo-dfs" name="algorithm" value="DFS">
+                        <label for="algo-dfs">Depth-First Search (DFS)</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" id="algo-gbfs" name="algorithm" value="GBFS">
+                        <label for="algo-gbfs">Greedy Best-First Search (GBFS)</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" id="algo-astar" name="algorithm" value="A*">
+                        <label for="algo-astar">A* Search</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Control Buttons -->
+            <div class="section">
+                <button id="plan-btn" class="btn btn-primary" onclick="planRoute()">🚀 Plan Route</button>
+                <button class="btn btn-secondary" onclick="clearSelections()">🗑️ Clear</button>
+            </div>
+
+            <!-- Quick Test Routes -->
+            <div class="section">
+                <h3>Quick Test Routes</h3>
+                <div id="test-routes" class="test-routes">
+                    <!-- Test route buttons will be populated here -->
+                </div>
+            </div>
+
+            <!-- Status -->
+            <div id="status" class="status info" style="display: none;">
+                Ready to plan routes
+            </div>
+
+            <!-- Results -->
+            <div id="results" class="results" style="display: none;">
+                <!-- Results will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentMode = 'today';
+        let stations = [];
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            loadStations();
+            loadTestRoutes();
+            
+            // Add event listeners for mode change
+            document.querySelectorAll('input[name="mode"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    if (this.checked) {
+                        currentMode = this.value;
+                        loadStations();
+                        loadTestRoutes();
+                        clearSelections();
+                    }
+                });
+            });
+        });
+
+        function showStatus(message, type = 'info') {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${type}`;
+            status.style.display = 'block';
+        }
+
+        function hideStatus() {
+            document.getElementById('status').style.display = 'none';
+        }
+
+        async function loadStations() {
+            try {
+                showStatus('Loading stations...', 'loading');
+                const response = await fetch(`/api/stations/${currentMode}`);
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                stations = data.stations;
+                populateStationSelects();
+                showStatus(`Loaded ${stations.length} stations for ${currentMode} network`, 'info');
+                
+            } catch (error) {
+                showStatus(`Error loading stations: ${error.message}`, 'error');
+            }
+        }
+
+        function populateStationSelects() {
+            const originSelect = document.getElementById('origin');
+            const destinationSelect = document.getElementById('destination');
+            
+            // Clear existing options
+            originSelect.innerHTML = '<option value="">Select origin station...</option>';
+            destinationSelect.innerHTML = '<option value="">Select destination station...</option>';
+            
+            // Add station options
+            stations.forEach(station => {
+                originSelect.innerHTML += `<option value="${station}">${station}</option>`;
+                destinationSelect.innerHTML += `<option value="${station}">${station}</option>`;
+            });
+        }
+
+        async function loadTestRoutes() {
+            try {
+                const response = await fetch(`/api/test-routes/${currentMode}`);
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                const testRoutesContainer = document.getElementById('test-routes');
+                testRoutesContainer.innerHTML = '';
+                
+                data.routes.forEach(route => {
+                    const button = document.createElement('button');
+                    button.className = 'btn btn-success';
+                    button.textContent = route.name;
+                    button.onclick = () => setTestRoute(route.origin, route.destination);
+                    testRoutesContainer.appendChild(button);
+                });
+                
+            } catch (error) {
+                console.error('Error loading test routes:', error);
+            }
+        }
+
+        function setTestRoute(origin, destination) {
+            document.getElementById('origin').value = origin;
+            document.getElementById('destination').value = destination;
+            showStatus(`Test route set: ${origin} → ${destination}`, 'info');
+        }
+
+        function swapStations() {
+            const originSelect = document.getElementById('origin');
+            const destinationSelect = document.getElementById('destination');
+            
+            const temp = originSelect.value;
+            originSelect.value = destinationSelect.value;
+            destinationSelect.value = temp;
+            
+            showStatus('Stations swapped', 'info');
+        }
+
+        function clearSelections() {
+            document.getElementById('origin').value = '';
+            document.getElementById('destination').value = '';
+            document.querySelector('input[name="algorithm"][value="all"]').checked = true;
+            document.getElementById('results').style.display = 'none';
+            showStatus('Selections cleared', 'info');
+        }
+
+        async function planRoute() {
+            const origin = document.getElementById('origin').value;
+            const destination = document.getElementById('destination').value;
+            const algorithm = document.querySelector('input[name="algorithm"]:checked').value;
+            
+            // Validate inputs
+            if (!origin) {
+                showStatus('Please select an origin station', 'error');
+                return;
+            }
+            
+            if (!destination) {
+                showStatus('Please select a destination station', 'error');
+                return;
+            }
+            
+            if (origin === destination) {
+                showStatus('Origin and destination cannot be the same', 'error');
+                return;
+            }
+            
+            // Disable button and show loading
+            const planBtn = document.getElementById('plan-btn');
+            planBtn.disabled = true;
+            planBtn.textContent = '🔄 Planning...';
+            showStatus('Planning route...', 'loading');
+            
+            try {
+                const response = await fetch('/api/plan-route', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        origin: origin,
+                        destination: destination,
+                        mode: currentMode,
+                        algorithm: algorithm
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                displayResults(data);
+                showStatus('Route planning completed', 'info');
+                
+            } catch (error) {
+                showStatus(`Error: ${error.message}`, 'error');
+            } finally {
+                // Re-enable button
+                planBtn.disabled = false;
+                planBtn.textContent = '🚀 Plan Route';
+            }
+        }
+
+        function displayResults(data) {
+            const resultsContainer = document.getElementById('results');
+            resultsContainer.innerHTML = '';
+            
+            // Results header
+            const header = document.createElement('h3');
+            header.textContent = `Route: ${data.origin} → ${data.destination} (${data.mode} network)`;
+            resultsContainer.appendChild(header);
+            
+            // Display results for each algorithm
+            Object.entries(data.algorithms).forEach(([algoName, result]) => {
+                const algoDiv = document.createElement('div');
+                algoDiv.className = 'algorithm-result';
+                
+                const algoHeader = document.createElement('h4');
+                algoHeader.textContent = `${algoName} Results`;
+                algoDiv.appendChild(algoHeader);
+                
+                if (result.path && result.path.length > 0) {
+                    // Path display
+                    const pathDiv = document.createElement('div');
+                    pathDiv.className = 'path-display';
+                    pathDiv.textContent = result.path.join(' → ');
+                    algoDiv.appendChild(pathDiv);
+                    
+                    // Statistics
+                    const statsDiv = document.createElement('div');
+                    statsDiv.className = 'stats-grid';
+                    
+                    const stats = [
+                        { label: 'Stations', value: result.path.length },
+                        { label: 'Travel Time', value: `${result.stats.path_cost?.toFixed(2) || 0} min` },
+                        { label: 'Nodes Expanded', value: result.stats.nodes_expanded || 0 },
+                        { label: 'Runtime', value: `${(result.stats.runtime * 1000)?.toFixed(4) || 0} ms` }
+                    ];
+                    
+                    stats.forEach(stat => {
+                        const statDiv = document.createElement('div');
+                        statDiv.className = 'stat-item';
+                        statDiv.innerHTML = `
+                            <div class="stat-value">${stat.value}</div>
+                            <div class="stat-label">${stat.label}</div>
+                        `;
+                        statsDiv.appendChild(statDiv);
+                    });
+                    
+                    algoDiv.appendChild(statsDiv);
+                    
+                    // Detailed route
+                    if (result.detailed_route && result.detailed_route.length > 0) {
+                        const detailedDiv = document.createElement('div');
+                        detailedDiv.className = 'detailed-route';
+                        
+                        const detailedHeader = document.createElement('h5');
+                        detailedHeader.textContent = 'Detailed Route:';
+                        detailedDiv.appendChild(detailedHeader);
+                        
+                        result.detailed_route.forEach(step => {
+                            const stepDiv = document.createElement('div');
+                            stepDiv.className = `route-step ${step.type}`;
+                            stepDiv.textContent = step.text;
+                            detailedDiv.appendChild(stepDiv);
+                        });
+                        
+                        algoDiv.appendChild(detailedDiv);
+                    }
+                    
+                } else {
+                    // No path found
+                    const noPathDiv = document.createElement('div');
+                    noPathDiv.className = 'path-display';
+                    noPathDiv.style.borderLeftColor = '#e74c3c';
+                    noPathDiv.textContent = result.stats.error || 'No path found';
+                    algoDiv.appendChild(noPathDiv);
+                }
+                
+                resultsContainer.appendChild(algoDiv);
+            });
+            
+            resultsContainer.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
