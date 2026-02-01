@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crowding Risk Prediction - Scenario Simulator Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        .comparison-view {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        .mode-panel {
+            background: #f8f9fa;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .mode-header {
+            padding: 20px;
+            color: white;
+            font-size: 1.5em;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .today-header {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+
+        .future-header {
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+        }
+
+        .mode-content {
+            padding: 30px 25px;
+        }
+
+        .control-group {
+            margin-bottom: 30px;
+        }
+
+        .control-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #2c3e50;
+            font-size: 15px;
+            line-height: 1.4;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            padding: 10px 14px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            border: 2px solid #ecf0f1;
+            min-width: fit-content;
+            white-space: nowrap;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .radio-option:hover {
+            background: #e8f4fd;
+            border-color: #3498db;
+            transform: translateY(-1px);
+        }
+
+        .radio-option input[type="radio"] {
+            margin: 0;
+            flex-shrink: 0;
+        }
+
+        .radio-option span {
+            flex-shrink: 0;
+        }
+
+        .radio-option.selected {
+            background: #3498db;
+            color: white;
+            border-color: #3498db;
+            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+        }
+        .results-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            border: 1px solid #ecf0f1;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .result-panel {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 20px;
+        }
+
+        .risk-score {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .risk-low { color: #27ae60; }
+        .risk-medium { color: #f39c12; }
+        .risk-high { color: #e74c3c; }
+
+        .controls-bar {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .comparison-summary {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .improvement-badge {
+            display: inline-block;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 1.2em;
+            margin: 10px 0;
+        }
+
+        @media (max-width: 768px) {
+            .comparison-view {
+                grid-template-columns: 1fr;
+            }
+            
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .radio-group {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .radio-option {
+                justify-content: flex-start;
+                width: 100%;
+            }
+            
+            .control-group {
+                margin-bottom: 25px;
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .radio-group {
+                gap: 8px;
+            }
+            
+            .radio-option {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Crowding Risk Prediction</h1>
+            <p>Scenario Simulator Dashboard - Changi Airport T5 Corridor Analysis</p>
+        </div>
+
+        <div class="main-content">
+            <div class="controls-bar">
+                <button class="btn btn-primary" onclick="runPrediction()">🔄 Update Prediction</button>
+                <button class="btn btn-secondary" onclick="syncSettings()">🔗 Sync Today → Future</button>
+                <button class="btn btn-secondary" onclick="resetAll()">↻ Reset All</button>
+                <button class="btn btn-secondary" onclick="loadScenario()">📋 Load Scenario</button>
+            </div>
+
+            <div class="comparison-view">
+                <!-- Today Mode Panel -->
+                <div class="mode-panel">
+                    <div class="mode-header today-header">
+                        Today Mode (Current Network)
+                    </div>
+                    <div class="mode-content">
+                        <div class="control-group">
+                            <label class="control-label">Weather (W)</label>
+                            <div class="radio-group">
+                                <label class="radio-option">
+                                    <input type="radio" name="today_weather" value="Clear" checked>
+                                    <span>☀️ Clear</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="today_weather" value="Rainy">
+                                    <span>🌧️ Rainy</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="today_weather" value="Thunderstorms">
+                                    <span>⛈️ Thunderstorms</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="control-group">
+                            <label class="control-label">Time of Day (T)</label>
+                            <div class="radio-group">
+                                <label class="radio-option">
+                                    <input type="radio" name="today_time" value="Morning" checked>
+                                    <span>🌅 Morning</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="today_time" value="Afternoon">
+                                    <span>☀️ Afternoon</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="today_time" value="Evening">
+                                    <span>🌆 Evening</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="control-group">
+                            <label class="control-label">Day Type (D)</label>
+                            <div class="radio-group">
+                                <label class="radio-option">
+                                    <input type="radio" name="today_day" value="Weekday" checked>
+                                    <span>📅 Weekday</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="today_day" value="Weekend">
+                                    <span>🎉 Weekend</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="control-group">
+                            <label class="control-label">Service Status (S)</label>
+                            <div class="radio-group">
+                                <label class="radio-option">
+                                    <input type="radio" name="today_service" value="Normal" checked>
+                                    <span>✅ Normal</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="today_service" value="Reduced">
+                                    <span>⚠️ Reduced</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="today_service" value="Disrupted">
+                                    <span>🚫 Disrupted</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Future Mode Panel -->
+                <div class="mode-panel">
+                    <div class="mode-header future-header">
+                        Future Mode (With TELe/CRL)
+                    </div>
+                    <div class="mode-content">
+                        <div class="control-group">
+                            <label class="control-label">Weather (W)</label>
+                            <div class="radio-group">
+                                <label class="radio-option">
+                                    <input type="radio" name="future_weather" value="Clear" checked>
+                                    <span>☀️ Clear</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="future_weather" value="Rainy">
+                                    <span>🌧️ Rainy</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="future_weather" value="Thunderstorms">
+                                    <span>⛈️ Thunderstorms</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="control-group">
+                            <label class="control-label">Time of Day (T)</label>
+                            <div class="radio-group">
+                                <label class="radio-option">
+                                    <input type="radio" name="future_time" value="Morning" checked>
+                                    <span>🌅 Morning</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="future_time" value="Afternoon">
+                                    <span>☀️ Afternoon</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="future_time" value="Evening">
+                                    <span>🌆 Evening</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="control-group">
+                            <label class="control-label">Day Type (D)</label>
+                            <div class="radio-group">
+                                <label class="radio-option">
+                                    <input type="radio" name="future_day" value="Weekday" checked>
+                                    <span>📅 Weekday</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="future_day" value="Weekend">
+                                    <span>🎉 Weekend</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="control-group">
+                            <label class="control-label">Service Status (S)</label>
+                            <div class="radio-group">
+                                <label class="radio-option">
+                                    <input type="radio" name="future_service" value="Normal" checked>
+                                    <span>✅ Normal</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="future_service" value="Reduced">
+                                    <span>⚠️ Reduced</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="future_service" value="Disrupted">
+                                    <span>🚫 Disrupted</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="results-section">
+                <div class="results-grid">
+                    <div class="result-panel">
+                        <h3>Today Mode Results</h3>
+                        <div class="chart-container">
+                            <canvas id="todayChart"></canvas>
+                        </div>
+                        <div class="risk-score" id="todayRiskScore">Risk Score: 0.000</div>
+                        <div id="todayDetails"></div>
+                    </div>
+                    
+                    <div class="result-panel">
+                        <h3>Future Mode Results</h3>
+                        <div class="chart-container">
+                            <canvas id="futureChart"></canvas>
+                        </div>
+                        <div class="risk-score" id="futureRiskScore">Risk Score: 0.000</div>
+                        <div id="futureDetails"></div>
+                    </div>
+                </div>
+
+                <div class="comparison-summary">
+                    <h3>Comparison Analysis</h3>
+                    <div id="improvementBadge" class="improvement-badge">
+                        📈 0.0% Improvement
+                    </div>
+                    <div id="comparisonDetails"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Bayesian Network Implementation
+        class BayesianNetwork {
+            constructor() {
+                this.domains = {
+                    'W': ['Clear', 'Rainy', 'Thunderstorms'],
+                    'T': ['Morning', 'Afternoon', 'Evening'],
+                    'D': ['Weekday', 'Weekend'],
+                    'M': ['Today', 'Future'],
+                    'S': ['Normal', 'Reduced', 'Disrupted'],
+                    'P': ['Low', 'Medium', 'High'],
+                    'C': ['Low', 'Medium', 'High']
+                };
+                
+                this.initializeCPTs();
+            }
+
+            initializeCPTs() {
+                // P(W) - Weather probabilities
+                this.cpts = {
+                    'W': {
+                        'Clear': 0.45,
+                        'Rainy': 0.40,
+                        'Thunderstorms': 0.15
+                    },
+                    
+                    // P(T) - Time of Day probabilities
+                    'T': {
+                        'Morning': 0.33,
+                        'Afternoon': 0.34,
+                        'Evening': 0.33
+                    },
+                    
+                    // P(D) - Day Type probabilities
+                    'D': {
+                        'Weekday': 5/7,
+                        'Weekend': 2/7
+                    },
+                    
+                    // P(M) - Network Mode
+                    'M': {
+                        'Today': 0.5,
+                        'Future': 0.5
+                    },
+                    
+                    // P(S|M) - Service Status given Network Mode
+                    'S': {
+                        'Today': {
+                            'Normal': 0.70,
+                            'Reduced': 0.20,
+                            'Disrupted': 0.10
+                        },
+                        'Future': {
+                            'Normal': 0.75,
+                            'Reduced': 0.18,
+                            'Disrupted': 0.07
+                        }
+                    }
+                };
+
+                // Initialize P(P|W,T,D,M) - Demand Proxy
+                this.cpts['P'] = {};
+                this.domains['W'].forEach(w => {
+                    this.domains['T'].forEach(t => {
+                        this.domains['D'].forEach(d => {
+                            this.domains['M'].forEach(m => {
+                                this.cpts['P'][`${w},${t},${d},${m}`] = this.calculateDemandProb(w, t, d, m);
+                            });
+                        });
+                    });
+                });
+
+                // Initialize P(C|P,S,M) - Crowding Risk
+                this.cpts['C'] = {};
+                this.domains['P'].forEach(p => {
+                    this.domains['S'].forEach(s => {
+                        this.domains['M'].forEach(m => {
+                            this.cpts['C'][`${p},${s},${m}`] = this.calculateCrowdingProb(p, s, m);
+                        });
+                    });
+                });
+            }
+            calculateDemandProb(w, t, d, m) {
+                let baseLow = 0.33, baseMed = 0.34, baseHigh = 0.33;
+                
+                // Time of Day effect
+                if (t === 'Morning') {
+                    baseLow = 0.15; baseMed = 0.35; baseHigh = 0.50;
+                } else if (t === 'Afternoon') {
+                    baseLow = 0.30; baseMed = 0.45; baseHigh = 0.25;
+                } else { // Evening
+                    baseLow = 0.20; baseMed = 0.35; baseHigh = 0.45;
+                }
+                
+                // Day Type effect
+                if (d === 'Weekday') {
+                    baseHigh += 0.10;
+                    baseLow -= 0.10;
+                } else {
+                    baseMed += 0.05;
+                    baseHigh -= 0.05;
+                }
+                
+                // Weather effect
+                if (w === 'Rainy') {
+                    baseLow += 0.05;
+                    baseHigh -= 0.05;
+                } else if (w === 'Thunderstorms') {
+                    baseLow += 0.08;
+                    baseMed += 0.02;
+                    baseHigh -= 0.10;
+                }
+                
+                // Normalize
+                const total = baseLow + baseMed + baseHigh;
+                return {
+                    'Low': baseLow / total,
+                    'Medium': baseMed / total,
+                    'High': baseHigh / total
+                };
+            }
+
+            calculateCrowdingProb(p, s, m) {
+                let baseLow, baseMed, baseHigh;
+                
+                // Base crowding based on demand
+                if (p === 'Low') {
+                    baseLow = 0.70; baseMed = 0.25; baseHigh = 0.05;
+                } else if (p === 'Medium') {
+                    baseLow = 0.30; baseMed = 0.50; baseHigh = 0.20;
+                } else { // High
+                    baseLow = 0.10; baseMed = 0.35; baseHigh = 0.55;
+                }
+                
+                // Service Status effect
+                if (s === 'Reduced') {
+                    baseHigh += 0.20;
+                    baseMed += 0.10;
+                    baseLow -= 0.30;
+                } else if (s === 'Disrupted') {
+                    baseHigh += 0.30;
+                    baseMed += 0.05;
+                    baseLow -= 0.35;
+                }
+                
+                // Network Mode effect
+                if (m === 'Future') {
+                    baseHigh -= 0.15;
+                    baseMed += 0.05;
+                    baseLow += 0.10;
+                }
+                
+                // Ensure non-negative and normalize
+                baseLow = Math.max(0.01, baseLow);
+                baseMed = Math.max(0.01, baseMed);
+                baseHigh = Math.max(0.01, baseHigh);
+                
+                const total = baseLow + baseMed + baseHigh;
+                return {
+                    'Low': baseLow / total,
+                    'Medium': baseMed / total,
+                    'High': baseHigh / total
+                };
+            }
+
+            inference(queryVar, evidence) {
+                if (queryVar === 'C') {
+                    return this.inferCrowding(evidence);
+                } else if (queryVar === 'P') {
+                    return this.inferDemand(evidence);
+                }
+                return null;
+            }
+
+            inferDemand(evidence) {
+                const key = `${evidence.W},${evidence.T},${evidence.D},${evidence.M}`;
+                return this.cpts['P'][key];
+            }
+
+            inferCrowding(evidence) {
+                // First get demand distribution
+                const demandDist = this.inferDemand(evidence);
+                
+                // Then calculate crowding for each demand level
+                let crowdingDist = { 'Low': 0, 'Medium': 0, 'High': 0 };
+                
+                this.domains['P'].forEach(p => {
+                    const key = `${p},${evidence.S},${evidence.M}`;
+                    const crowdingGivenP = this.cpts['C'][key];
+                    
+                    this.domains['C'].forEach(c => {
+                        crowdingDist[c] += demandDist[p] * crowdingGivenP[c];
+                    });
+                });
+                
+                return crowdingDist;
+            }
+        }
+
+        // Global variables
+        let bn = new BayesianNetwork();
+        let todayChart = null;
+        let futureChart = null;
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            setupRadioButtons();
+            runPrediction();
+        });
+        function setupRadioButtons() {
+            document.querySelectorAll('.radio-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const radio = this.querySelector('input[type="radio"]');
+                    radio.checked = true;
+                    
+                    // Update visual selection
+                    const group = this.parentElement;
+                    group.querySelectorAll('.radio-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    this.classList.add('selected');
+                    
+                    // Auto-update prediction
+                    runPrediction();
+                });
+            });
+
+            // Set initial selected states
+            document.querySelectorAll('input[type="radio"]:checked').forEach(radio => {
+                radio.closest('.radio-option').classList.add('selected');
+            });
+        }
+
+        function getFormData() {
+            return {
+                today: {
+                    W: document.querySelector('input[name="today_weather"]:checked').value,
+                    T: document.querySelector('input[name="today_time"]:checked').value,
+                    D: document.querySelector('input[name="today_day"]:checked').value,
+                    S: document.querySelector('input[name="today_service"]:checked').value,
+                    M: 'Today'
+                },
+                future: {
+                    W: document.querySelector('input[name="future_weather"]:checked').value,
+                    T: document.querySelector('input[name="future_time"]:checked').value,
+                    D: document.querySelector('input[name="future_day"]:checked').value,
+                    S: document.querySelector('input[name="future_service"]:checked').value,
+                    M: 'Future'
+                }
+            };
+        }
+
+        function runPrediction() {
+            const data = getFormData();
+            
+            // Run inference for both modes
+            const todayCrowding = bn.inference('C', data.today);
+            const todayDemand = bn.inference('P', data.today);
+            
+            const futureCrowding = bn.inference('C', data.future);
+            const futureDemand = bn.inference('P', data.future);
+            
+            // Calculate risk scores
+            const todayRisk = calculateRiskScore(todayCrowding);
+            const futureRisk = calculateRiskScore(futureCrowding);
+            
+            // Update displays
+            updateModeDisplay('today', todayCrowding, todayDemand, todayRisk, data.today);
+            updateModeDisplay('future', futureCrowding, futureDemand, futureRisk, data.future);
+            updateComparison(todayRisk, futureRisk);
+        }
+
+        function calculateRiskScore(crowdingDist) {
+            return crowdingDist.Low * 1 + crowdingDist.Medium * 2 + crowdingDist.High * 3;
+        }
+
+        function updateModeDisplay(mode, crowding, demand, riskScore, evidence) {
+            // Update risk score
+            const riskElement = document.getElementById(`${mode}RiskScore`);
+            riskElement.textContent = `Risk Score: ${riskScore.toFixed(3)}`;
+            
+            // Set risk color
+            riskElement.className = 'risk-score';
+            if (riskScore < 1.5) {
+                riskElement.classList.add('risk-low');
+            } else if (riskScore < 2.5) {
+                riskElement.classList.add('risk-medium');
+            } else {
+                riskElement.classList.add('risk-high');
+            }
+            
+            // Update details
+            const detailsElement = document.getElementById(`${mode}Details`);
+            detailsElement.innerHTML = `
+                <p><strong>Settings:</strong> ${evidence.W}, ${evidence.T}, ${evidence.D}, ${evidence.S}</p>
+                <p><strong>P(High Risk):</strong> ${(crowding.High * 100).toFixed(1)}%</p>
+                <p><strong>P(Medium Risk):</strong> ${(crowding.Medium * 100).toFixed(1)}%</p>
+                <p><strong>P(Low Risk):</strong> ${(crowding.Low * 100).toFixed(1)}%</p>
+            `;
+            
+            // Update chart
+            updateChart(mode, crowding);
+        }
+
+        function updateChart(mode, crowding) {
+            const ctx = document.getElementById(`${mode}Chart`).getContext('2d');
+            
+            // Destroy existing chart
+            if (mode === 'today' && todayChart) {
+                todayChart.destroy();
+            } else if (mode === 'future' && futureChart) {
+                futureChart.destroy();
+            }
+            
+            const chart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Low Risk', 'Medium Risk', 'High Risk'],
+                    datasets: [{
+                        data: [crowding.Low, crowding.Medium, crowding.High],
+                        backgroundColor: ['#27ae60', '#f39c12', '#e74c3c'],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+            
+            if (mode === 'today') {
+                todayChart = chart;
+            } else {
+                futureChart = chart;
+            }
+        }
+        function updateComparison(todayRisk, futureRisk) {
+            const improvement = ((todayRisk - futureRisk) / todayRisk * 100);
+            const badge = document.getElementById('improvementBadge');
+            
+            if (improvement >= 0) {
+                badge.innerHTML = `📈 ${improvement.toFixed(1)}% Improvement`;
+                badge.style.background = 'linear-gradient(135deg, #27ae60 0%, #229954 100%)';
+            } else {
+                badge.innerHTML = `📉 ${Math.abs(improvement).toFixed(1)}% Degradation`;
+                badge.style.background = 'linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)';
+            }
+            
+            const details = document.getElementById('comparisonDetails');
+            details.innerHTML = `
+                <p><strong>Today Risk Score:</strong> ${todayRisk.toFixed(3)}</p>
+                <p><strong>Future Risk Score:</strong> ${futureRisk.toFixed(3)}</p>
+                <p><strong>Risk Reduction:</strong> ${(todayRisk - futureRisk).toFixed(3)} points</p>
+                <p><strong>TELe/CRL Impact:</strong> ${improvement >= 0 ? 'Positive' : 'Negative'}</p>
+            `;
+        }
+
+        function syncSettings() {
+            // Copy Today settings to Future
+            const todayWeather = document.querySelector('input[name="today_weather"]:checked').value;
+            const todayTime = document.querySelector('input[name="today_time"]:checked').value;
+            const todayDay = document.querySelector('input[name="today_day"]:checked').value;
+            const todayService = document.querySelector('input[name="today_service"]:checked').value;
+            
+            document.querySelector(`input[name="future_weather"][value="${todayWeather}"]`).checked = true;
+            document.querySelector(`input[name="future_time"][value="${todayTime}"]`).checked = true;
+            document.querySelector(`input[name="future_day"][value="${todayDay}"]`).checked = true;
+            document.querySelector(`input[name="future_service"][value="${todayService}"]`).checked = true;
+            
+            setupRadioButtons();
+            runPrediction();
+            alert('Settings synced from Today to Future mode!');
+        }
+
+        function resetAll() {
+            // Reset all to defaults
+            document.querySelectorAll('input[value="Clear"]').forEach(radio => radio.checked = true);
+            document.querySelectorAll('input[value="Morning"]').forEach(radio => radio.checked = true);
+            document.querySelectorAll('input[value="Weekday"]').forEach(radio => radio.checked = true);
+            document.querySelectorAll('input[value="Normal"]').forEach(radio => radio.checked = true);
+            
+            setupRadioButtons();
+            runPrediction();
+            alert('All settings reset to defaults!');
+        }
+
+        function loadScenario() {
+            const scenarios = [
+                { name: 'Morning Rush - Clear', settings: { W: 'Clear', T: 'Morning', D: 'Weekday', S: 'Normal' } },
+                { name: 'Evening Rain', settings: { W: 'Rainy', T: 'Evening', D: 'Weekday', S: 'Normal' } },
+                { name: 'Weekend Leisure', settings: { W: 'Clear', T: 'Afternoon', D: 'Weekend', S: 'Normal' } },
+                { name: 'Service Disruption', settings: { W: 'Clear', T: 'Morning', D: 'Weekday', S: 'Disrupted' } },
+                { name: 'Thunderstorm Crisis', settings: { W: 'Thunderstorms', T: 'Evening', D: 'Weekday', S: 'Reduced' } },
+                { name: 'Optimal Conditions', settings: { W: 'Clear', T: 'Afternoon', D: 'Weekend', S: 'Normal' } }
+            ];
+            
+            const scenarioNames = scenarios.map(s => s.name);
+            const choice = prompt(`Select a scenario:\n${scenarioNames.map((name, i) => `${i + 1}. ${name}`).join('\n')}\n\nEnter number (1-${scenarios.length}):`);
+            
+            const index = parseInt(choice) - 1;
+            if (index >= 0 && index < scenarios.length) {
+                const scenario = scenarios[index];
+                const settings = scenario.settings;
+                
+                // Apply to both modes
+                ['today', 'future'].forEach(mode => {
+                    document.querySelector(`input[name="${mode}_weather"][value="${settings.W}"]`).checked = true;
+                    document.querySelector(`input[name="${mode}_time"][value="${settings.T}"]`).checked = true;
+                    document.querySelector(`input[name="${mode}_day"][value="${settings.D}"]`).checked = true;
+                    document.querySelector(`input[name="${mode}_service"][value="${settings.S}"]`).checked = true;
+                });
+                
+                setupRadioButtons();
+                runPrediction();
+                alert(`Loaded scenario: ${scenario.name}`);
+            }
+        }
+    </script>
+</body>
+</html>

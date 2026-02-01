@@ -10,6 +10,7 @@ from mrt_network_data import (
     TODAY_MODE_CONNECTIONS,
     FUTURE_MODE_ADDITIONAL_CONNECTIONS,
     FUTURE_MODE_REMOVED_CONNECTIONS,
+    FUTURE_ONLY_STATIONS,
     TEST_PAIRS_TODAY,
     TEST_PAIRS_FUTURE,
     TRANSFER_PENALTY_MINUTES,
@@ -40,7 +41,14 @@ class MRTNetwork:
         else:  # future mode
             self._build_future_network()
         
+        # Set stations from graph keys (only connected stations)
         self.stations = set(self.graph.keys())
+        
+        # Filter coordinates to only include available stations
+        self.coordinates = {
+            station: coords for station, coords in STATION_COORDINATES.items()
+            if station in self.stations
+        }
     
     def _add_edge(self, station1: str, station2: str, time: int, line: str):
         """Add bidirectional edge between stations"""
@@ -83,6 +91,24 @@ class MRTNetwork:
         # Add new future connections
         for station1, station2, travel_time, line in FUTURE_MODE_ADDITIONAL_CONNECTIONS:
             self._add_edge(station1, station2, travel_time, line)
+    
+    def get_available_stations(self) -> List[str]:
+        """Get list of available stations for current mode"""
+        if self.mode == "today":
+            # Exclude future-only stations
+            available = set(STATION_COORDINATES.keys()) - FUTURE_ONLY_STATIONS
+            # Only return stations that actually have connections
+            return sorted([station for station in available if station in self.stations])
+        else:
+            # Future mode includes all stations
+            return sorted(list(self.stations))
+    
+    def is_station_available(self, station: str) -> bool:
+        """Check if a station is available in current mode"""
+        if self.mode == "today":
+            return station not in FUTURE_ONLY_STATIONS and station in self.stations
+        else:
+            return station in self.stations
     
     def get_neighbors(self, station: str) -> List[Tuple[str, int, str]]:
         """Get neighbors of a station"""
