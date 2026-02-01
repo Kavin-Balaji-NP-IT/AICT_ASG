@@ -413,8 +413,7 @@ TODAY_MODE_CONNECTIONS = [
     ("Tampines East", "Upper Changi", 2, "DTL"),
     ("Upper Changi", "Expo", 2, "DTL"),
     
-    # DTL Extension (DTL3e)
-    ("Expo", "Sungei Bedok", 2, "DTL"),
+    # DTL Extension (DTL3e) - moved to future mode (not operational)
     
     # ============ THOMSON-EAST COAST LINE (TEL) - Brown ============
     # Thomson Section
@@ -445,11 +444,14 @@ TODAY_MODE_CONNECTIONS = [
     ("Tanjong Rhu", "Katong Park", 2, "TEL"),
     ("Katong Park", "Marine Parade", 3, "TEL"),  # Skip Tanjong Katong (not operational)
     ("Marine Parade", "Siglap", 3, "TEL"),  # Skip Marine Terrace (not operational)
-    ("Siglap", "Sungei Bedok", 4, "TEL"),  # Skip non-operational stations to Sungei Bedok
+    # Note: Siglap is currently the end of operational TEL East Coast line
 ]
 
 # Additional connections for FUTURE MODE (with TEL Extension and CRL)
 FUTURE_MODE_ADDITIONAL_CONNECTIONS = [
+    # DTL Extension (DTL3e) - not yet operational
+    ("Expo", "Sungei Bedok", 2, "DTL"),
+    
     # TEL East Coast - Non-operational stations to be added in future
     ("Gardens by the Bay", "Founders' Memorial", 2, "TEL"),
     ("Founders' Memorial", "Tanjong Rhu", 2, "TEL"),  # Replace direct connection
@@ -490,7 +492,7 @@ FUTURE_MODE_REMOVED_CONNECTIONS = [
     ("Gardens by the Bay", "Tanjong Rhu", "TEL"),  # Replace with via Founders' Memorial
     ("Katong Park", "Marine Parade", "TEL"),  # Replace with via Tanjong Katong
     ("Marine Parade", "Siglap", "TEL"),  # Replace with via Marine Terrace
-    ("Siglap", "Sungei Bedok", "TEL"),  # Replace with via Bayshore and Bedok South
+    # Note: Siglap-Sungei Bedok connection removed since Sungei Bedok is future-only
 ]
 
 # Recommended test origin-destination pairs
@@ -535,9 +537,10 @@ FUTURE_ONLY_STATIONS = {
     "Bayshore",
     "Bedok South",
     
+    # Downtown Line Extension (DTL3e) - not yet operational
+    "Sungei Bedok",
+    
     # Note: Tanjong Rhu, Marine Parade, Siglap, and Katong Park are now operational
-    # Note: Sungei Bedok is operational as DTL extension, so it's available in today mode
-    # The TEL connection to Sungei Bedok is future-only, but the station itself is operational
 }
 
 # Cost parameters
