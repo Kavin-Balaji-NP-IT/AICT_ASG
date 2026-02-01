@@ -1,410 +1,425 @@
-import tkinter as tk
-from tkinter import ttk, messagebox
+import json
+import streamlit as st
 
-from task2_logical_inference import Scenario, Route, evaluate_route, check_advisory_consistency
+# =========================================================
+# MUST BE FIRST STREAMLIT CALL
+# =========================================================
+st.set_page_config(page_title="ChangiLink AI - Logic Checker", layout="wide")
 
-
-def parse_csv_set(text: str):
+# =========================================================
+# THEME / CSS (after set_page_config)
+# =========================================================
+st.markdown(
     """
-    Parses: "A, B, C" or multiline "A\nB\nC" into a set of strings.
-    """
-    if not text.strip():
+<style>
+/* ---- Global readable text ---- */
+html, body, .stApp, p, span, label, div, li, small, h2, h3, h4 {
+  color: #F8FAFC !important;
+}
+
+/* ---- Background ---- */
+.stApp{
+  background: radial-gradient(1200px 600px at 20% 0%, #122449 0%, #0B1220 55%, #070B14 100%);
+}
+
+/* ---- Title ---- */
+h1{
+  color: #22D3EE !important;
+  font-weight: 800 !important;
+  letter-spacing: .2px;
+}
+
+[data-testid="stCaptionContainer"]{
+  color: rgba(248,250,252,0.82) !important;
+}
+
+/* ---- Card-like blocks ---- */
+[data-testid="stVerticalBlockBorderWrapper"]{
+  background: rgba(15, 27, 51, 0.88) !important;
+  border: 1px solid rgba(255,255,255,0.10) !important;
+  border-radius: 14px !important;
+}
+
+/* ---- Inputs ---- */
+.stTextArea textarea,
+.stTextInput input,
+.stSelectbox div[data-baseweb="select"] > div{
+  background: rgba(9, 14, 26, 0.95) !important;
+  border: 1px solid rgba(255,255,255,0.15) !important;
+  color: #FFFFFF !important;
+  border-radius: 10px !important;
+}
+
+textarea::placeholder,
+input::placeholder{
+  color: rgba(255,255,255,0.45) !important;
+}
+
+/* ---- Tabs ---- */
+.stTabs [data-baseweb="tab-list"]{
+  gap: 0.75rem;
+}
+
+.stTabs [data-baseweb="tab"]{
+  background: rgba(15, 27, 51, 0.75) !important;
+  border: 1px solid rgba(255,255,255,0.12) !important;
+  border-radius: 12px !important;
+  padding: 10px 18px !important;
+  color: rgba(248,250,252,0.85) !important;
+  font-weight: 700 !important;
+}
+
+.stTabs [aria-selected="true"]{
+  color: #22D3EE !important;
+  border-color: rgba(34,211,238,0.65) !important;
+  box-shadow: 0 0 0 3px rgba(34,211,238,0.12) !important;
+}
+
+/* ---- Buttons ---- */
+.stButton button{
+  background: linear-gradient(180deg, rgba(34,211,238,0.20), rgba(34,211,238,0.08)) !important;
+  border: 1px solid rgba(34,211,238,0.55) !important;
+  color: #FFFFFF !important;
+  font-weight: 700 !important;
+  border-radius: 12px !important;
+}
+
+.stButton button:hover{
+  border-color: rgba(34,211,238,0.80) !important;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25) !important;
+}
+
+/* ---- Checkbox text ---- */
+[data-testid="stCheckbox"] span{
+  color: #F9FAFB !important;
+}
+
+/* ---- Hide Streamlit chrome (optional) ---- */
+#MainMenu { visibility: hidden; }
+footer { visibility: hidden; }
+header { visibility: hidden; }
+</style>
+""",
+    unsafe_allow_html=True,
+)
+
+# =========================================================
+# Helpers (parsers + logger)
+# =========================================================
+def parse_csv_set(text: str) -> set[str]:
+    text = (text or "").strip()
+    if not text:
         return set()
     raw = text.replace("\n", ",")
-    items = [x.strip() for x in raw.split(",")]
-    return {x for x in items if x}
+    items = [x.strip() for x in raw.split(",") if x.strip()]
+    return set(items)
 
-
-def parse_edges(text: str):
-    """
-    Parses edges from multiline:
-      TanahMerah,Expo
-      Expo,ChangiAirport
-    or with arrows:
-      TanahMerah -> Expo
-    Returns set of (a,b) tuples.
-    """
-    edges = set()
-    if not text.strip():
+def parse_edges(text: str) -> set[tuple[str, str]]:
+    edges: set[tuple[str, str]] = set()
+    text = (text or "").strip()
+    if not text:
         return edges
 
-    lines = [ln.strip() for ln in text.splitlines() if ln.strip()]
+    lines = [ln.strip() for ln in text.split("\n") if ln.strip()]
     for ln in lines:
-        ln = ln.replace("->", ",").replace("—", ",").replace("–", ",")
-        parts = [p.strip() for p in ln.split(",") if p.strip()]
+        cleaned = ln.replace("->", ",").replace("—", ",").replace("–", ",")
+        parts = [p.strip() for p in cleaned.split(",") if p.strip()]
         if len(parts) != 2:
             raise ValueError(f"Bad edge format: '{ln}'. Use 'A,B' or 'A -> B'.")
         edges.add((parts[0], parts[1]))
     return edges
 
+def init_output():
+    if "output" not in st.session_state:
+        st.session_state.output = []
 
-class LogicGUI(tk.Tk):
-    def __init__(self):
-        super().__init__()
-        self.title("ChangiLink AI — Logical Inference Checker (Frontend)")
-        self.geometry("980x640")
+def log(msg: str, kind: str = "muted"):
+    # kind: title | ok | bad | warn | muted
+    init_output()
+    st.session_state.output.append((kind, msg))
 
-        self._build_ui()
-        self._load_preset("Scenario 1 (A1)")
+def clear_output():
+    st.session_state.output = []
 
-    def _build_ui(self):
-        # Main vertical layout:
-        # [Notebook on top]
-        # [Output panel below]
-        container = ttk.Frame(self, padding=12)
-        container.pack(fill="both", expand=True)
-
-        # Make container rows stretch nicely
-        container.columnconfigure(0, weight=1)
-        container.rowconfigure(0, weight=3)  # notebook area
-        container.rowconfigure(1, weight=2)  # output area
-
-        # ---- Inputs notebook (TOP) ----
-        nb = ttk.Notebook(container)
-        nb.grid(row=0, column=0, sticky="nsew")
-
-        tab_scenario = ttk.Frame(nb, padding=10)
-        tab_route = ttk.Frame(nb, padding=10)
-        tab_presets = ttk.Frame(nb, padding=10)
-
-        nb.add(tab_scenario, text="Scenario")
-        nb.add(tab_route, text="Route")
-        nb.add(tab_presets, text="Presets")
-
-        # ---- Scenario tab ----
-        row = 0
-        ttk.Label(tab_scenario, text="Mode").grid(row=row, column=0, sticky="w")
-        self.mode_var = tk.StringVar(value="today")
-        ttk.Combobox(
-            tab_scenario, textvariable=self.mode_var,
-            values=["today", "future"], state="readonly", width=18
-        ).grid(row=row, column=1, sticky="w", padx=8)
-
-        ttk.Label(tab_scenario, text="Status").grid(row=row, column=2, sticky="w")
-        self.status_var = tk.StringVar(value="normal")
-        ttk.Combobox(
-            tab_scenario, textvariable=self.status_var,
-            values=["normal", "delay", "disrupted", "scheduled_maintenance"],
-            state="readonly", width=22
-        ).grid(row=row, column=3, sticky="w", padx=8)
-
-        row += 1
-        self.integration_var = tk.BooleanVar(value=False)
-        ttk.Checkbutton(
-            tab_scenario, text="Integration Works (systems integration ongoing)",
-            variable=self.integration_var
-        ).grid(row=row, column=0, columnspan=4, sticky="w", pady=(8, 10))
-
-        row += 1
-        ttk.Label(tab_scenario, text="Exists (stations that exist in this mode)\n(comma or newline separated)").grid(
-            row=row, column=0, sticky="nw"
-        )
-        self.exists_text = tk.Text(tab_scenario, height=6, width=36)
-        self.exists_text.grid(row=row, column=1, sticky="we", padx=8)
-
-        ttk.Label(tab_scenario, text="Open Stations\n(comma or newline separated)").grid(
-            row=row, column=2, sticky="nw"
-        )
-        self.open_stations_text = tk.Text(tab_scenario, height=6, width=36)
-        self.open_stations_text.grid(row=row, column=3, sticky="we", padx=8)
-
-        row += 1
-        ttk.Label(tab_scenario, text="Open Edges (one per line)\nFormat: A,B or A -> B").grid(
-            row=row, column=0, sticky="nw", pady=(12, 0)
-        )
-        self.open_edges_text = tk.Text(tab_scenario, height=7, width=36)
-        self.open_edges_text.grid(row=row, column=1, sticky="we", padx=8, pady=(12, 0))
-
-        ttk.Label(tab_scenario, text="Recommended Routes\n(e.g. EWL_AirportBranch, ...)").grid(
-            row=row, column=2, sticky="nw", pady=(12, 0)
-        )
-        self.recommended_text = tk.Text(tab_scenario, height=7, width=36)
-        self.recommended_text.grid(row=row, column=3, sticky="we", padx=8, pady=(12, 0))
-
-        row += 1
-        ttk.Label(tab_scenario, text="(Optional) Served by TEL stations\n(for Rule 10 checking)").grid(
-            row=row, column=0, sticky="w", pady=(12, 0)
-        )
-        self.served_tel_text = tk.Text(tab_scenario, height=2, width=36)
-        self.served_tel_text.grid(row=row, column=1, sticky="we", padx=8, pady=(12, 0))
-
-        # ---- Route tab ----
-        rrow = 0
-        ttk.Label(tab_route, text="Route Name").grid(row=rrow, column=0, sticky="w")
-        self.route_name_var = tk.StringVar(value="EWL_AirportBranch")
-        ttk.Entry(tab_route, textvariable=self.route_name_var, width=35).grid(row=rrow, column=1, sticky="w", padx=8)
-
-        rrow += 1
-        ttk.Label(tab_route, text="Route Stations (ordered)\nFormat: A,B,C or newline").grid(
-            row=rrow, column=0, sticky="nw", pady=(12, 0)
-        )
-        self.route_stations_text = tk.Text(tab_route, height=6, width=55)
-        self.route_stations_text.grid(row=rrow, column=1, sticky="we", padx=8, pady=(12, 0))
-
-        rrow += 1
-        btns = ttk.Frame(tab_route)
-        btns.grid(row=rrow, column=0, columnspan=2, sticky="w", pady=(14, 0))
-
-        ttk.Button(btns, text="Check Advisory Consistency", command=self.on_check_advisory).pack(side="left", padx=(0, 8))
-        ttk.Button(btns, text="Evaluate Route", command=self.on_evaluate_route).pack(side="left", padx=(0, 8))
-        ttk.Button(btns, text="Run Both", command=self.on_run_both).pack(side="left", padx=(0, 8))
-        ttk.Button(btns, text="Clear Output", command=self.clear_output).pack(side="left")
-
-        # ---- Presets tab ----
-        ttk.Label(tab_presets, text="Load preset scenario quickly (good for demos/screenshots):").pack(anchor="w")
-        self.preset_var = tk.StringVar(value="Scenario 1 (A1)")
-        ttk.Combobox(
-            tab_presets, textvariable=self.preset_var, state="readonly",
-            values=[
-                "Scenario 1 (A1)",
-                "Scenario 2 (A2)",
-                "Scenario 3 (A3)",
-                "Scenario 4 (A4)",
-                "Scenario 5 (A5)",
-                "Scenario 6 (A6) - you should add",
-            ],
-            width=34
-        ).pack(anchor="w", pady=10)
-
-        ttk.Button(tab_presets, text="Load Preset", command=lambda: self._load_preset(self.preset_var.get())).pack(anchor="w")
-
-        ttk.Label(
-            tab_presets,
-            text=(
-                "Tip: Your assignment requires at least 6 scenarios.\n"
-                "You already have A1–A5. Use A6 and tweak it to create another case."
-            )
-        ).pack(anchor="w", pady=16)
-
-        # ---- Output panel (BOTTOM, FULL WIDTH) ----
-        out_frame = ttk.LabelFrame(container, text="Output / Results", padding=10)
-        out_frame.grid(row=1, column=0, sticky="nsew", pady=(10, 0))
-
-        out_frame.columnconfigure(0, weight=1)
-        out_frame.rowconfigure(0, weight=1)
-
-        self.output = tk.Text(out_frame, height=10, wrap="word")
-        self.output.grid(row=0, column=0, sticky="nsew")
-
-        # Scrollbar
-        scroll = ttk.Scrollbar(out_frame, orient="vertical", command=self.output.yview)
-        scroll.grid(row=0, column=1, sticky="ns")
-        self.output.configure(yscrollcommand=scroll.set)
-
-
-    def clear_output(self):
-        self.output.delete("1.0", "end")
-
-    def log(self, msg: str, tag=None):
-        self.output.insert("end", msg + "\n")
-        self.output.see("end")
-
-    def build_scenario(self) -> Scenario:
-        mode = self.mode_var.get().strip()
-        status = self.status_var.get().strip()
-
-        exists = parse_csv_set(self.exists_text.get("1.0", "end"))
-        open_stations = parse_csv_set(self.open_stations_text.get("1.0", "end"))
-        open_edges = parse_edges(self.open_edges_text.get("1.0", "end"))
-        recommended_routes = parse_csv_set(self.recommended_text.get("1.0", "end"))
-        served_by_tel = parse_csv_set(self.served_tel_text.get("1.0", "end"))
-
-        return Scenario(
-            mode=mode,
-            status=status,
-            exists=exists,
-            open_stations=open_stations,
-            open_edges=open_edges,
-            integration_works=bool(self.integration_var.get()),
-            recommended_routes=recommended_routes,
-            served_by_tel=served_by_tel
-        )
-
-    def build_route(self) -> Route:
-        name = self.route_name_var.get().strip() or "UnnamedRoute"
-
-        raw = self.route_stations_text.get("1.0", "end").strip()
-        if not raw:
-            raise ValueError("Route stations cannot be empty.")
-
-        raw = raw.replace("\n", ",")
-        stations = [x.strip() for x in raw.split(",") if x.strip()]
-        return Route(name=name, stations=stations)
-
-    def on_check_advisory(self):
-        try:
-            self.log("Advisory consistency check")
-            sc = self.build_scenario()
-            res = check_advisory_consistency(sc)
-
-            if res["consistent"]:
-                self.log("Result: Consistent")
-            else:
-                self.log("Result: Inconsistent")
-
-            if res["violations"]:
-                self.log(f"Rule violations: {res['violations']}")
-
-            if res["notes"]:
-                self.log("Notes:")
-                for n in res["notes"]:
-                    self.log(f"- {n}")
-
-            self.log("")  # blank line
-        except Exception as e:
-            messagebox.showerror("Error", str(e))
-            self.log("=== Advisory Consistency Check ===", "title")
-        try:
-            sc = self.build_scenario()
-            res = check_advisory_consistency(sc)
-
-            if res["consistent"]:
-                self.log("Advisories: CONSISTENT ✅", "ok")
-            else:
-                self.log("Advisories: INCONSISTENT ❌", "bad")
-
-            if res["violations"]:
-                self.log(f"Rule violations: {res['violations']}", "bad")
-
-            for n in res["notes"]:
-                self.log(f"- {n}")
-            self.log("")
-        except Exception as e:
-            messagebox.showerror("Error", str(e))
-
-    def on_evaluate_route(self):
-        try:
-            self.log("Route evaluation")
-            sc = self.build_scenario()
-            r = self.build_route()
-            res = evaluate_route(r, sc)
-
-            if res["valid"] and res["warning"]:
-                self.log(f"Route: {r.name}")
-                self.log("Result: Valid (warning)")
-            elif res["valid"]:
-                self.log(f"Route: {r.name}")
-                self.log("Result: Valid")
-            else:
-                self.log(f"Route: {r.name}")
-                self.log("Result: Invalid")
-
-            if res["violations"]:
-                self.log(f"Rule violations: {res['violations']}")
-
-            if res["notes"]:
-                self.log("Notes:")
-                for n in res["notes"]:
-                    self.log(f"- {n}")
-
-            self.log("")  # blank line
-        except Exception as e:
-            messagebox.showerror("Error", str(e))
-
-    def on_run_both(self):
-        self.on_check_advisory()
-        self.on_evaluate_route()
-
-    def _load_preset(self, name: str):
-        presets = self._preset_data()
-        if name not in presets:
-            messagebox.showwarning("Preset not found", f"No preset named: {name}")
+def render_output():
+    init_output()
+    st.markdown("### Output")
+    with st.container(border=True):
+        if not st.session_state.output:
+            st.caption("No output yet. Load a preset or click Run Both.")
             return
 
-        p = presets[name]
-        self.mode_var.set(p["mode"])
-        self.status_var.set(p["status"])
-        self.integration_var.set(p["integration_works"])
+        for kind, msg in st.session_state.output:
+            if kind == "title":
+                st.markdown(f"**{msg}**")
+            elif kind == "ok":
+                st.success(msg)
+            elif kind == "bad":
+                st.error(msg)
+            elif kind == "warn":
+                st.warning(msg)
+            else:
+                st.write(msg)
 
-        self._set_text(self.exists_text, p["exists"])
-        self._set_text(self.open_stations_text, p["open_stations"])
-        self._set_text(self.open_edges_text, p["open_edges"])
-        self._set_text(self.recommended_text, p.get("recommended_routes", ""))
-        self._set_text(self.served_tel_text, p.get("served_by_tel", ""))
+# =========================================================
+# Presets
+# =========================================================
+PRESETS = {
+    "scenario1": {
+        "mode": "today", "status": "normal", "integration": False,
+        "exists": "TanahMerah\nExpo\nChangiAirport",
+        "openStations": "TanahMerah\nExpo\nChangiAirport",
+        "openEdges": "TanahMerah,Expo\nExpo,ChangiAirport",
+        "recommendedRoutes": "",
+        "servedTEL": "",
+        "routeName": "EWL_AirportBranch",
+        "routeStations": "TanahMerah\nExpo\nChangiAirport",
+    },
+    "scenario2": {
+        "mode": "today", "status": "normal", "integration": False,
+        "exists": "SungeiBedok\nTanahMerah\nExpo\nChangiAirport",
+        "openStations": "SungeiBedok\nTanahMerah\nExpo\nChangiAirport",
+        "openEdges": "TanahMerah,Expo\nExpo,ChangiAirport",
+        "recommendedRoutes": "",
+        "servedTEL": "",
+        "routeName": "Future_TEL_To_T5",
+        "routeStations": "SungeiBedok\nT5\nTanahMerah",
+    },
+    "scenario3": {
+        "mode": "today", "status": "normal", "integration": False,
+        "exists": "TanahMerah\nExpo\nChangiAirport",
+        "openStations": "TanahMerah\nExpo\nChangiAirport",
+        "openEdges": "TanahMerah,Expo\nExpo,ChangiAirport",
+        "recommendedRoutes": "",
+        "servedTEL": "",
+        "routeName": "Direct_TanahMerah_To_Changi",
+        "routeStations": "TanahMerah\nChangiAirport",
+    },
+    "scenario4": {
+        "mode": "future", "status": "normal", "integration": False,
+        "exists": "SungeiBedok\nT5\nTanahMerah",
+        "openStations": "SungeiBedok\nT5\nTanahMerah",
+        "openEdges": "SungeiBedok,T5\nT5,TanahMerah",
+        "recommendedRoutes": "",
+        "servedTEL": "",
+        "routeName": "Future_TEL_To_T5",
+        "routeStations": "SungeiBedok\nT5\nTanahMerah",
+    },
+    "scenario5": {
+        "mode": "future", "status": "delay", "integration": True,
+        "exists": "TanahMerah\nExpo\nChangiAirport",
+        "openStations": "TanahMerah\nExpo\nChangiAirport",
+        "openEdges": "TanahMerah,Expo\nExpo,ChangiAirport",
+        "recommendedRoutes": "EWL_AirportBranch",
+        "servedTEL": "",
+        "routeName": "EWL_AirportBranch",
+        "routeStations": "TanahMerah\nExpo\nChangiAirport",
+    },
+    "scenario6": {
+        "mode": "future", "status": "scheduled_maintenance", "integration": False,
+        "exists": "TanahMerah\nExpo\nChangiAirport\nT5\nSungeiBedok",
+        "openStations": "TanahMerah\nChangiAirport\nT5\nSungeiBedok",
+        "openEdges": "TanahMerah,Expo\nExpo,ChangiAirport\nSungeiBedok,T5\nT5,TanahMerah",
+        "recommendedRoutes": "",
+        "servedTEL": "",
+        "routeName": "EWL_AirportBranch",
+        "routeStations": "TanahMerah\nExpo\nChangiAirport",
+    },
+}
 
-        self.route_name_var.set(p["route_name"])
-        self._set_text(self.route_stations_text, p["route_stations"])
+DEFAULTS = PRESETS["scenario1"]
 
-        self.clear_output()
-        self.log(f"Loaded preset: {name}")
-        self.log("Next: click Run Both")
-        self.log("")
+def ensure_defaults():
+    # only set if missing (safe)
+    for k, v in DEFAULTS.items():
+        if k not in st.session_state:
+            st.session_state[k] = v
 
-    def _set_text(self, widget: tk.Text, value: str):
-        widget.delete("1.0", "end")
-        widget.insert("1.0", value)
+def request_preset_load(preset_key: str):
+    """Safe preset loading pattern for Streamlit."""
+    st.session_state["_pending_preset"] = preset_key
+    st.rerun()
 
-    def _preset_data(self):
-        return {
-            "Scenario 1 (A1)": {
-                "mode": "today",
-                "status": "normal",
-                "integration_works": False,
-                "exists": "TanahMerah\nExpo\nChangiAirport",
-                "open_stations": "TanahMerah\nExpo\nChangiAirport",
-                "open_edges": "TanahMerah,Expo\nExpo,ChangiAirport",
-                "recommended_routes": "",
-                "route_name": "EWL_AirportBranch",
-                "route_stations": "TanahMerah\nExpo\nChangiAirport",
-            },
-            "Scenario 2 (A2)": {
-                "mode": "today",
-                "status": "normal",
-                "integration_works": False,
-                "exists": "SungeiBedok\nTanahMerah\nExpo\nChangiAirport",
-                "open_stations": "SungeiBedok\nTanahMerah\nExpo\nChangiAirport",
-                "open_edges": "TanahMerah,Expo\nExpo,ChangiAirport",
-                "recommended_routes": "",
-                "route_name": "Future_TEL_To_T5",
-                "route_stations": "SungeiBedok\nT5\nTanahMerah",
-            },
-            "Scenario 3 (A3)": {
-                "mode": "today",
-                "status": "normal",
-                "integration_works": False,
-                "exists": "TanahMerah\nExpo\nChangiAirport",
-                "open_stations": "TanahMerah\nExpo\nChangiAirport",
-                "open_edges": "TanahMerah,Expo\nExpo,ChangiAirport",
-                "recommended_routes": "",
-                "route_name": "Direct_TanahMerah_To_Changi",
-                "route_stations": "TanahMerah\nChangiAirport",
-            },
-            "Scenario 4 (A4)": {
-                "mode": "future",
-                "status": "normal",
-                "integration_works": False,
-                "exists": "SungeiBedok\nT5\nTanahMerah",
-                "open_stations": "SungeiBedok\nT5\nTanahMerah",
-                "open_edges": "SungeiBedok,T5\nT5,TanahMerah",
-                "recommended_routes": "",
-                "route_name": "Future_TEL_To_T5",
-                "route_stations": "SungeiBedok\nT5\nTanahMerah",
-            },
-            "Scenario 5 (A5)": {
-                "mode": "future",
-                "status": "delay",
-                "integration_works": True,
-                "exists": "TanahMerah\nExpo\nChangiAirport",
-                "open_stations": "TanahMerah\nExpo\nChangiAirport",
-                "open_edges": "TanahMerah,Expo\nExpo,ChangiAirport",
-                "recommended_routes": "EWL_AirportBranch",
-                "route_name": "EWL_AirportBranch",
-                "route_stations": "TanahMerah\nExpo\nChangiAirport",
-            },
-            "Scenario 6 (A6) - you should add": {
-                "mode": "future",
-                "status": "scheduled_maintenance",
-                "integration_works": False,
-                "exists": "TanahMerah\nExpo\nChangiAirport\nT5\nSungeiBedok",
-                "open_stations": "TanahMerah\nChangiAirport\nT5\nSungeiBedok",
-                "open_edges": "TanahMerah,Expo\nExpo,ChangiAirport\nSungeiBedok,T5\nT5,TanahMerah",
-                "recommended_routes": "",
-                "route_name": "EWL_AirportBranch",
-                "route_stations": "TanahMerah\nExpo\nChangiAirport",
-            },
-        }
+def apply_pending_preset_if_any():
+    """Apply presets BEFORE widgets are created."""
+    key = st.session_state.get("_pending_preset")
+    if not key:
+        return
+    preset = PRESETS.get(key, {})
+    for k, v in preset.items():
+        st.session_state[k] = v
+    st.session_state["_pending_preset"] = None
+    clear_output()
+    log(f"Loaded preset: {key}", "muted")
+    log("Next: go Route tab and press Run Both.", "muted")
 
+# =========================================================
+# Logic placeholders (swap with your actual logic)
+# =========================================================
+def build_scenario_from_state():
+    return {
+        "mode": st.session_state["mode"],
+        "status": st.session_state["status"],
+        "exists": parse_csv_set(st.session_state["exists"]),
+        "open_stations": parse_csv_set(st.session_state["openStations"]),
+        "open_edges": parse_edges(st.session_state["openEdges"]),
+        "integration_works": bool(st.session_state["integration"]),
+        "recommended_routes": parse_csv_set(st.session_state["recommendedRoutes"]),
+        "served_by_tel": parse_csv_set(st.session_state["servedTEL"]),
+    }
 
-if __name__ == "__main__":
-    app = LogicGUI()
-    app.mainloop()
+def build_route_from_state():
+    name = (st.session_state["routeName"] or "").strip() or "UnnamedRoute"
+    raw = (st.session_state["routeStations"] or "").strip()
+    if not raw:
+        raise ValueError("Route stations cannot be empty.")
+    stations = [x.strip() for x in raw.replace("\n", ",").split(",") if x.strip()]
+    return {"name": name, "stations": stations}
+
+def check_advisory_consistency(scenario: dict):
+    log("Advisory consistency check", "title")
+
+    violations = []
+    if scenario["mode"] == "today" and scenario["status"] == "normal":
+        log("Result: Consistent", "ok")
+    else:
+        log("Result: Inconsistent", "bad")
+        violations.append("Status/mode mismatch detected (placeholder rule)")
+
+    if violations:
+        log("Rule violations: " + ", ".join(violations), "bad")
+
+def evaluate_route_logic(route: dict, scenario: dict):
+    log("Route evaluation", "title")
+    log(f"Route: {route['name']}", "muted")
+
+    violations = []
+    valid = True
+    warning = False
+
+    if len(route["stations"]) < 2:
+        valid = False
+        violations.append("Route must have at least 2 stations")
+
+    if valid:
+        missing = [s for s in route["stations"] if s not in scenario["exists"]]
+        if missing:
+            warning = True
+            violations.append(f"Stations not in Exists list: {missing}")
+
+    if valid and warning:
+        log("Result: Valid (warning)", "warn")
+    elif valid:
+        log("Result: Valid", "ok")
+    else:
+        log("Result: Invalid", "bad")
+
+    if violations:
+        log("Rule violations: " + ", ".join(map(str, violations)), "bad")
+
+def run_both():
+    scenario = build_scenario_from_state()
+    route = build_route_from_state()
+    check_advisory_consistency(scenario)
+    evaluate_route_logic(route, scenario)
+
+# =========================================================
+# MAIN FLOW (IMPORTANT ORDER)
+# Apply preset -> set defaults -> then create widgets
+# =========================================================
+init_output()
+apply_pending_preset_if_any()
+ensure_defaults()
+
+# =========================================================
+# UI
+# =========================================================
+st.markdown("# ChangiLink AI")
+st.caption("logical inference checker thingy (pls work)")
+
+tabs = st.tabs(["Scenario", "Route", "Presets"])
+
+with tabs[0]:
+    c1, c2 = st.columns(2)
+    with c1:
+        st.selectbox("Mode", ["today", "future"], key="mode")
+    with c2:
+        st.selectbox(
+            "Status",
+            ["normal", "delay", "disrupted", "scheduled_maintenance"],
+            key="status"
+        )
+
+    st.checkbox("Integration Works (systems integration ongoing)", key="integration")
+    st.divider()
+
+    colA, colB = st.columns(2)
+    with colA:
+        st.text_area("Exists (stations that exist)", key="exists", height=140)
+    with colB:
+        st.text_area("Open Stations", key="openStations", height=140)
+
+    colC, colD = st.columns(2)
+    with colC:
+        st.text_area("Open Edges (A,B or A -> B)", key="openEdges", height=140)
+    with colD:
+        st.text_area("Recommended Routes", key="recommendedRoutes", height=140)
+
+    st.text_area("Served by TEL (optional)", key="servedTEL", height=100)
+
+with tabs[1]:
+    st.text_input("Route Name", key="routeName")
+    st.text_area("Route Stations (in order)", key="routeStations", height=180)
+
+    b1, b2, b3, b4 = st.columns([1, 1, 1, 1])
+    with b1:
+        if st.button("Run Both", use_container_width=True):
+            try:
+                run_both()
+            except Exception as e:
+                log(f"Error: {e}", "bad")
+    with b2:
+        if st.button("Check Advisory", use_container_width=True):
+            try:
+                scenario = build_scenario_from_state()
+                check_advisory_consistency(scenario)
+            except Exception as e:
+                log(f"Error: {e}", "bad")
+    with b3:
+        if st.button("Evaluate Route", use_container_width=True):
+            try:
+                scenario = build_scenario_from_state()
+                route = build_route_from_state()
+                evaluate_route_logic(route, scenario)
+            except Exception as e:
+                log(f"Error: {e}", "bad")
+    with b4:
+        if st.button("Clear Output", use_container_width=True):
+            clear_output()
+
+with tabs[2]:
+    st.markdown("### Presets")
+    st.caption("Load one of these and then go Route tab → Run Both")
+
+    preset_key = st.selectbox(
+        "Pick one",
+        list(PRESETS.keys()),
+        format_func=lambda k: k.replace("scenario", "Scenario "),
+        key="preset_picker",
+    )
+
+    if st.button("Load Preset", use_container_width=True):
+        request_preset_load(preset_key)
+
+    st.info("Tip: you can still type stuff manually after loading.")
+
+st.divider()
+render_output()
+
+with st.expander("Debug: current parsed scenario/route"):
+    try:
+        scenario_dbg = build_scenario_from_state()
+        route_dbg = build_route_from_state()
+        st.code(json.dumps({"scenario": scenario_dbg, "route": route_dbg}, default=list, indent=2))
+    except Exception as e:
+        st.code(str(e))
