@@ -3,10 +3,11 @@ Crowding Risk Prediction - Web Application
 A Flask web interface for the Bayesian Network scenario simulator
 """
 
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, send_file, request, jsonify
 import json
 import base64
 import io
+import os
 import matplotlib
 matplotlib.use('Agg')  # Use non-interactive backend
 import matplotlib.pyplot as plt
@@ -26,8 +27,13 @@ def initialize_network():
 
 @app.route('/')
 def index():
-    """Main page"""
-    return render_template('index.html')
+    """Main page - serve the crowding risk dashboard"""
+    return send_file('crowding_risk_dashboard.html')
+
+@app.route('/dashboard')
+def dashboard():
+    """Alternative route for the dashboard"""
+    return send_file('crowding_risk_dashboard.html')
 
 @app.route('/api/domains')
 def get_domains():
@@ -383,4 +389,5 @@ if __name__ == '__main__':
     print("Network initialized successfully!")
     print("\nStarting web server...")
     print("Open your browser and go to: http://localhost:5000")
+    print("Dashboard: Crowding Risk Scenario Simulator")
     app.run(debug=True, host='0.0.0.0', port=5000)
