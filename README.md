@@ -10,15 +10,37 @@ ChangiLink AI integrates three powerful AI systems:
 2. **🧠 Logical Inference** - Service advisory consistency checking & route validation  
 3. **📊 Crowding Risk** - Bayesian network crowding risk assessment
 
+## � Installation
+
+### Step 1: Install Python
+Make sure you have **Python 3.7 or higher** installed:
+```bash
+python --version
+```
+
+### Step 2: Install Required Packages
+Install all required dependencies with one command:
+```bash
+pip install flask numpy pandas requests
+```
+
+**Individual package installation (if needed):**
+```bash
+pip install flask      # Web framework
+pip install numpy      # Numerical computing
+pip install pandas     # Data manipulation
+pip install requests   # HTTP library
+```
+
 ## 🚀 Quick Start - How to Run
 
-### Prerequisites
+### Step 3: Verify Installation
+Check that all packages are installed correctly:
+```bash
+python -c "import flask, numpy, pandas, requests; print('✅ All packages installed successfully!')"
+```
 
-1. **Python 3.7+** installed on your system
-2. **Required packages** (will be checked automatically):
-   ```bash
-   pip install flask numpy pandas requests
-   ```
+If you see any import errors, install the missing packages using the commands above.
 
 ### Option 1: One-Command Launch (Recommended) ⭐
 
