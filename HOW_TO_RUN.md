@@ -1,8 +1,8 @@
-# 🚀 How to Run ChangiLink AI
+# How to Run ChangiLink AI
 
 **Quick start guide to get the system running in 3 simple steps!**
 
-## ⚡ Super Quick Start
+## Super Quick Start
 
 1. **Install packages:**
    ```bash
@@ -18,7 +18,7 @@
 
 ---
 
-## 📋 Step-by-Step Instructions
+## Step-by-Step Instructions
 
 ### Step 1: Check Python
 Make sure Python is installed:
@@ -57,18 +57,18 @@ chmod +x start_changilink_ai.sh
 
 The system will automatically open your browser. If not, visit:
 
-- **📋 Main Dashboard**: Opens automatically
-- **🗺️ Route Planning**: http://localhost:5000
-- **🧠 Logical Inference**: http://localhost:5001
-- **📊 Crowding Risk**: http://localhost:5002
+- **Main Dashboard**: Opens automatically
+- **Route Planning**: http://localhost:5000
+- **Logical Inference**: http://localhost:5001
+- **Crowding Risk**: http://localhost:5002
 
-## 🛑 How to Stop
+## How to Stop
 
 Press `Ctrl+C` in the terminal where the system is running.
 
 ---
 
-## ❗ Troubleshooting
+## Troubleshooting
 
 **Problem: "Module not found"**
 ```bash
@@ -90,26 +90,26 @@ chmod +x start_changilink_ai.sh
 
 ---
 
-## 🎯 What You'll See
+## What You'll See
 
 When everything works correctly, you'll see:
 ```
-🚇 ChangiLink AI - Integrated Transportation Intelligence System
-✅ All dependencies satisfied!
-🚀 Starting Route Planning...
-   ✅ Route Planning started on http://localhost:5000
-🚀 Starting Logical Inference...
-   ✅ Logical Inference started on http://localhost:5001
-🚀 Starting Crowding Risk...
-   ✅ Crowding Risk started on http://localhost:5002
-🎉 ChangiLink AI is ready!
+ChangiLink AI - Integrated Transportation Intelligence System
+All dependencies satisfied!
+Starting Route Planning...
+   Route Planning started on http://localhost:5000
+Starting Logical Inference...
+   Logical Inference started on http://localhost:5001
+Starting Crowding Risk...
+   Crowding Risk started on http://localhost:5002
+ChangiLink AI is ready!
 ```
 
 **That's it! The system is now running and ready to use.**
 
 ---
 
-## 🆘 Still Having Issues?
+## Still Having Issues?
 
 1. Make sure you're in the correct folder (where `integrated_launcher.py` is located)
 2. Try running individual systems:
@@ -119,3 +119,4 @@ When everything works correctly, you'll see:
    ```
 3. Check the main README.md for detailed troubleshooting
 
+**Happy exploring!**
