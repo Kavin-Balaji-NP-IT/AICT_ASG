@@ -121,9 +121,12 @@ STATION_COORDINATES = {
     "Telok Blangah": (1.2706, 103.8096),
     "HarbourFront": (1.2653, 103.8219),  # Already defined (interchange)
     
-    # Circle Line Extension (CCL6)
+    # Circle Line Extension (CCL6) - Future stations to complete the loop
     "Marina Bay": (1.2760, 103.8544),  # Already defined (interchange)
     "Bayfront": (1.2820, 103.8594),
+    "Keppel": (1.2720, 103.8180),  # CCL6 - Future
+    "Cantonment": (1.2790, 103.8320),  # CCL6 - Future  
+    "Prince Edward Road": (1.2850, 103.8380),  # CCL6 - Future
     
     # ============ DOWNTOWN LINE (DTL) - Blue ============
     "Bukit Panjang": (1.3790, 103.7619),
@@ -371,7 +374,7 @@ TODAY_MODE_CONNECTIONS = [
     ("Labrador Park", "Telok Blangah", 2, "CCL"),
     ("Telok Blangah", "HarbourFront", 2, "CCL"),
     
-    # Circle Line Extension (CCL6)
+    # Circle Line Extension (CCL6) - Current operational section
     ("HarbourFront", "Bayfront", 3, "CCL"),
     ("Bayfront", "Marina Bay", 2, "CCL"),
     
@@ -437,21 +440,27 @@ TODAY_MODE_CONNECTIONS = [
     ("Marina Bay", "Marina South", 2, "TEL"),
     ("Marina South", "Gardens by the Bay", 2, "TEL"),
     
-    # East Coast Section
-    ("Gardens by the Bay", "Founders' Memorial", 2, "TEL"),
-    ("Founders' Memorial", "Tanjong Rhu", 2, "TEL"),
+    # East Coast Section - Operational stations
+    ("Gardens by the Bay", "Tanjong Rhu", 3, "TEL"),  # Skip Founders' Memorial (not operational)
     ("Tanjong Rhu", "Katong Park", 2, "TEL"),
-    ("Katong Park", "Tanjong Katong", 2, "TEL"),
-    ("Tanjong Katong", "Marine Parade", 2, "TEL"),
-    ("Marine Parade", "Marine Terrace", 2, "TEL"),
-    ("Marine Terrace", "Siglap", 2, "TEL"),
-    ("Siglap", "Bayshore", 3, "TEL"),
-    ("Bayshore", "Bedok South", 2, "TEL"),
-    ("Bedok South", "Sungei Bedok", 2, "TEL"),
+    ("Katong Park", "Marine Parade", 3, "TEL"),  # Skip Tanjong Katong (not operational)
+    ("Marine Parade", "Siglap", 3, "TEL"),  # Skip Marine Terrace (not operational)
+    ("Siglap", "Sungei Bedok", 4, "TEL"),  # Skip non-operational stations to Sungei Bedok
 ]
 
 # Additional connections for FUTURE MODE (with TEL Extension and CRL)
 FUTURE_MODE_ADDITIONAL_CONNECTIONS = [
+    # TEL East Coast - Non-operational stations to be added in future
+    ("Gardens by the Bay", "Founders' Memorial", 2, "TEL"),
+    ("Founders' Memorial", "Tanjong Rhu", 2, "TEL"),  # Replace direct connection
+    ("Katong Park", "Tanjong Katong", 2, "TEL"),
+    ("Tanjong Katong", "Marine Parade", 2, "TEL"),  # Replace direct connection
+    ("Marine Parade", "Marine Terrace", 2, "TEL"),
+    ("Marine Terrace", "Siglap", 2, "TEL"),  # Replace direct connection
+    ("Siglap", "Bayshore", 3, "TEL"),
+    ("Bayshore", "Bedok South", 2, "TEL"),
+    ("Bedok South", "Sungei Bedok", 2, "TEL"),  # Replace direct connection
+    
     # TEL Extension: Sungei Bedok → Changi Terminal 5 → Tanah Merah
     ("Sungei Bedok", "Bayshore", 2, "TEL"),  # This replaces the reverse direction
     ("Bayshore", "Upper Changi", 2, "TEL"),
@@ -466,12 +475,22 @@ FUTURE_MODE_ADDITIONAL_CONNECTIONS = [
     ("Punggol", "Pasir Ris", 4, "CRL"),
     ("Pasir Ris", "Loyang", 3, "CRL"),
     ("Loyang", "Changi Terminal 5", 4, "CRL"),
+    
+    # Circle Line Extension (CCL6) - Complete the circle
+    ("Marina Bay", "Keppel", 2, "CCL"),
+    ("Keppel", "Cantonment", 2, "CCL"),
+    ("Cantonment", "Prince Edward Road", 2, "CCL"),
+    ("Prince Edward Road", "Dhoby Ghaut", 2, "CCL"),  # Connect back to main circle
 ]
 
-# Connections to remove in FUTURE MODE (converted from EWL/DTL to TEL)
+# Connections to remove in FUTURE MODE (replaced by more detailed routing)
 FUTURE_MODE_REMOVED_CONNECTIONS = [
     ("Expo", "Changi Airport", "EWL"),  # This becomes TEL in future
     ("Tanah Merah", "Expo", "EWL"),  # This becomes TEL in future
+    ("Gardens by the Bay", "Tanjong Rhu", "TEL"),  # Replace with via Founders' Memorial
+    ("Katong Park", "Marine Parade", "TEL"),  # Replace with via Tanjong Katong
+    ("Marine Parade", "Siglap", "TEL"),  # Replace with via Marine Terrace
+    ("Siglap", "Sungei Bedok", "TEL"),  # Replace with via Bayshore and Bedok South
 ]
 
 # Recommended test origin-destination pairs
@@ -482,6 +501,8 @@ TEST_PAIRS_TODAY = [
     ("Boon Lay", "Punggol"),
     ("HarbourFront", "Woodlands"),
     ("Jurong East", "Marina Bay"),
+    ("Gardens by the Bay", "Marine Parade"),  # TEL East Coast operational route
+    ("Tanjong Rhu", "Siglap"),  # TEL East Coast operational route
 ]
 
 TEST_PAIRS_FUTURE = [
@@ -492,7 +513,32 @@ TEST_PAIRS_FUTURE = [
     ("Changi Terminal 5", "HarbourFront"),
     ("Pasir Ris", "Changi Terminal 5"),
     ("Boon Lay", "Changi Terminal 5"),
+    ("Marina Bay", "Keppel"),  # CCL6 test
+    ("Dhoby Ghaut", "Prince Edward Road"),  # CCL6 circle completion test
 ]
+
+# Future-only stations (not available in today mode)
+FUTURE_ONLY_STATIONS = {
+    # Cross Island Line (CRL) stations
+    "Changi Terminal 5",
+    "Loyang",
+    
+    # Circle Line 6 (CCL6) - Expected 2026, complete the circle
+    "Keppel",
+    "Cantonment", 
+    "Prince Edward Road",
+    
+    # Thomson-East Coast Line (TEL) East Coast section - remaining non-operational stations
+    "Founders' Memorial",
+    "Tanjong Katong",
+    "Marine Terrace", 
+    "Bayshore",
+    "Bedok South",
+    
+    # Note: Tanjong Rhu, Marine Parade, Siglap, and Katong Park are now operational
+    # Note: Sungei Bedok is operational as DTL extension, so it's available in today mode
+    # The TEL connection to Sungei Bedok is future-only, but the station itself is operational
+}
 
 # Cost parameters
 TRANSFER_PENALTY_MINUTES = 3  # Time penalty when changing lines

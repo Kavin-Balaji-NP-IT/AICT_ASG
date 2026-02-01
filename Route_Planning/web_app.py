@@ -6,7 +6,7 @@ A Flask web interface for planning MRT routes in Singapore
 from flask import Flask, render_template, request, jsonify
 import json
 from task1_route_planning import MRTNetwork, SearchAlgorithms
-from mrt_network_data import LINE_NAMES, LINE_COLORS, TEST_PAIRS_TODAY, TEST_PAIRS_FUTURE
+from mrt_network_data import LINE_NAMES, LINE_COLORS, TEST_PAIRS_TODAY, TEST_PAIRS_FUTURE, FUTURE_ONLY_STATIONS
 
 app = Flask(__name__)
 
@@ -33,7 +33,8 @@ def get_stations(mode):
     if mode not in networks:
         return jsonify({'error': 'Invalid mode'}), 400
     
-    stations = sorted(list(networks[mode].stations))
+    # Use the network's method to get available stations for the mode
+    stations = networks[mode].get_available_stations()
     return jsonify({'stations': stations})
 
 @app.route('/api/test-routes/<mode>')
@@ -67,11 +68,14 @@ def plan_route():
     if mode not in networks:
         return jsonify({'error': 'Invalid mode'}), 400
     
-    if origin not in networks[mode].stations:
-        return jsonify({'error': f'Invalid origin station: {origin}'}), 400
+    network = networks[mode]
     
-    if destination not in networks[mode].stations:
-        return jsonify({'error': f'Invalid destination station: {destination}'}), 400
+    # Check if stations are available in the selected mode
+    if not network.is_station_available(origin):
+        return jsonify({'error': f'Station "{origin}" is not available in {mode} mode'}), 400
+    
+    if not network.is_station_available(destination):
+        return jsonify({'error': f'Station "{destination}" is not available in {mode} mode'}), 400
     
     if origin == destination:
         return jsonify({'error': 'Origin and destination cannot be the same'}), 400
