@@ -10,14 +10,14 @@
             padding: 0;
             box-sizing: border-box;
         }
-
+        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
         }
-
+        
         .container {
             max-width: 1400px;
             margin: 0 auto;
@@ -26,34 +26,34 @@
             box-shadow: 0 20px 40px rgba(0,0,0,0.1);
             overflow: hidden;
         }
-
+        
         .header {
             background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
             color: white;
             padding: 30px;
             text-align: center;
         }
-
+        
         .header h1 {
             font-size: 2.5em;
             margin-bottom: 10px;
         }
-
+        
         .header p {
             font-size: 1.1em;
             opacity: 0.9;
         }
-
+        
         .main-content {
             padding: 30px;
         }
-
+        
         .tabs {
             display: flex;
             border-bottom: 2px solid #e0e0e0;
             margin-bottom: 30px;
         }
-
+        
         .tab {
             padding: 15px 25px;
             background: #f8f9fa;
@@ -66,24 +66,24 @@
             margin-right: 5px;
             transition: all 0.3s;
         }
-
+        
         .tab.active {
             background: #3498db;
             color: white;
         }
-
+        
         .tab:hover:not(.active) {
             background: #e9ecef;
         }
-
+        
         .tab-content {
             display: none;
         }
-
+        
         .tab-content.active {
             display: block;
         }
-
+        
         .section {
             margin-bottom: 30px;
             padding: 25px;
@@ -91,7 +91,7 @@
             border-radius: 10px;
             background: #fafafa;
         }
-
+        
         .section h3 {
             color: #2c3e50;
             margin-bottom: 20px;
@@ -99,18 +99,18 @@
             border-bottom: 2px solid #3498db;
             padding-bottom: 10px;
         }
-
+        
         .form-group {
             margin-bottom: 20px;
         }
-
+        
         .form-group label {
             display: block;
             margin-bottom: 8px;
             font-weight: 600;
             color: #2c3e50;
         }
-
+        
         .form-control {
             width: 100%;
             padding: 12px;
@@ -119,37 +119,37 @@
             font-size: 16px;
             transition: border-color 0.3s;
         }
-
+        
         .form-control:focus {
             outline: none;
             border-color: #3498db;
             box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
         }
-
+        
         .form-control.textarea {
             min-height: 100px;
             resize: vertical;
             font-family: 'Consolas', 'Monaco', monospace;
         }
-
+        
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
         }
-
+        
         .checkbox-group {
             display: flex;
             align-items: center;
             gap: 10px;
             margin: 15px 0;
         }
-
+        
         .checkbox-group input[type="checkbox"] {
             width: 18px;
             height: 18px;
         }
-
+        
         .btn {
             padding: 12px 25px;
             border: none;
@@ -161,81 +161,81 @@
             margin-right: 10px;
             margin-bottom: 10px;
         }
-
+        
         .btn-primary {
             background: #3498db;
             color: white;
         }
-
+        
         .btn-primary:hover {
             background: #2980b9;
             transform: translateY(-2px);
         }
-
+        
         .btn-secondary {
             background: #95a5a6;
             color: white;
         }
-
+        
         .btn-secondary:hover {
             background: #7f8c8d;
         }
-
+        
         .btn-success {
             background: #27ae60;
             color: white;
         }
-
+        
         .btn-success:hover {
             background: #229954;
         }
-
+        
         .btn-warning {
             background: #f39c12;
             color: white;
         }
-
+        
         .btn-warning:hover {
             background: #e67e22;
         }
-
+        
         .btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
             transform: none !important;
         }
-
+        
         .status {
             padding: 15px;
             border-radius: 8px;
             margin: 20px 0;
             font-weight: 600;
         }
-
+        
         .status.info {
             background: #d4edda;
             color: #155724;
             border: 1px solid #c3e6cb;
         }
-
+        
         .status.error {
             background: #f8d7da;
             color: #721c24;
             border: 1px solid #f5c6cb;
         }
-
+        
         .status.loading {
             background: #fff3cd;
             color: #856404;
             border: 1px solid #ffeaa7;
         }
-
+        
         .status.success {
             background: #d1ecf1;
             color: #0c5460;
             border: 1px solid #bee5eb;
         }
-
+        
         .results {
             margin-top: 30px;
             padding: 25px;
@@ -243,13 +243,13 @@
             border-radius: 10px;
             border: 1px solid #e0e0e0;
         }
-
+        
         .results h3 {
             color: #2c3e50;
             margin-bottom: 20px;
             font-size: 1.4em;
         }
-
+        
         .result-section {
             margin-bottom: 25px;
             padding: 20px;
@@ -257,60 +257,60 @@
             border-radius: 8px;
             background: #f9f9f9;
         }
-
+        
         .result-section h4 {
             color: #2c3e50;
             margin-bottom: 15px;
             font-size: 1.2em;
         }
-
+        
         .result-valid {
             border-left: 4px solid #27ae60;
         }
-
+        
         .result-invalid {
             border-left: 4px solid #e74c3c;
         }
-
+        
         .result-warning {
             border-left: 4px solid #f39c12;
         }
-
+        
         .violations-list {
             background: white;
             padding: 15px;
             border-radius: 6px;
             margin: 10px 0;
         }
-
+        
         .violation-item {
             padding: 8px 0;
             border-bottom: 1px solid #eee;
         }
-
+        
         .violation-item:last-child {
             border-bottom: none;
         }
-
+        
         .notes-list {
             background: white;
             padding: 15px;
             border-radius: 6px;
             margin: 10px 0;
         }
-
+        
         .note-item {
             padding: 5px 0;
             color: #666;
         }
-
+        
         .preset-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 15px;
             margin-top: 15px;
         }
-
+        
         .preset-card {
             background: white;
             padding: 20px;
@@ -319,48 +319,48 @@
             cursor: pointer;
             transition: all 0.3s;
         }
-
+        
         .preset-card:hover {
             border-color: #3498db;
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
-
+        
         .preset-card h4 {
             color: #2c3e50;
             margin-bottom: 10px;
         }
-
+        
         .preset-card p {
             color: #666;
             font-size: 14px;
         }
-
+        
         .rules-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
             gap: 20px;
             margin-top: 20px;
         }
-
+        
         .rule-card {
             background: white;
             padding: 20px;
             border-radius: 8px;
             border: 1px solid #ddd;
         }
-
+        
         .rule-card h4 {
             color: #3498db;
             margin-bottom: 10px;
         }
-
+        
         .rule-card .rule-description {
             color: #666;
             margin-bottom: 10px;
             font-style: italic;
         }
-
+        
         .rule-card .rule-logic {
             background: #f8f9fa;
             padding: 10px;
@@ -368,33 +368,33 @@
             font-family: 'Consolas', 'Monaco', monospace;
             font-size: 14px;
         }
-
+        
         @media (max-width: 768px) {
             .container {
                 margin: 10px;
                 border-radius: 10px;
             }
-
+            
             .main-content {
                 padding: 20px;
             }
-
+            
             .header {
                 padding: 20px;
             }
-
+            
             .header h1 {
                 font-size: 2em;
             }
-
+            
             .form-row {
                 grid-template-columns: 1fr;
             }
-
+            
             .tabs {
                 flex-wrap: wrap;
             }
-
+            
             .tab {
                 flex: 1;
                 min-width: 120px;
@@ -408,7 +408,7 @@
             <h1>🧠 ChangiLink AI - Logical Inference</h1>
             <p>Service Advisory Consistency Checking & Route Validation</p>
         </div>
-
+        
         <div class="main-content">
             <!-- Tab Navigation -->
             <div class="tabs">
@@ -417,7 +417,7 @@
                 <button class="tab" onclick="showTab('presets')">Test Scenarios</button>
                 <button class="tab" onclick="showTab('rules')">Logical Rules</button>
             </div>
-
+            
             <!-- Scenario Builder Tab -->
             <div id="scenario-tab" class="tab-content active">
                 <div class="section">
@@ -440,13 +440,12 @@
                             </select>
                         </div>
                     </div>
-                    
                     <div class="checkbox-group">
                         <input type="checkbox" id="integration_works">
                         <label for="integration_works">Systems Integration Work Ongoing</label>
                     </div>
                 </div>
-
+                
                 <div class="section">
                     <h3>Station & Service Configuration</h3>
                     <div class="form-row">
@@ -459,7 +458,6 @@
                             <textarea id="open_stations" class="form-control textarea" placeholder="TanahMerah, Expo, ChangiAirport"></textarea>
                         </div>
                     </div>
-                    
                     <div class="form-row">
                         <div class="form-group">
                             <label for="open_edges">Open Connections (one per line)</label>
@@ -470,13 +468,12 @@
                             <textarea id="recommended_routes" class="form-control textarea" placeholder="EWL_AirportBranch, TEL_Extension"></textarea>
                         </div>
                     </div>
-                    
                     <div class="form-group">
                         <label for="served_by_tel">Stations Served by TEL (comma-separated)</label>
                         <textarea id="served_by_tel" class="form-control textarea" placeholder="TanahMerah, Expo, ChangiAirport"></textarea>
                     </div>
                 </div>
-
+                
                 <div class="section">
                     <h3>Analysis Actions</h3>
                     <button class="btn btn-primary" onclick="checkConsistency()">🔍 Check Advisory Consistency</button>
@@ -485,7 +482,7 @@
                     <button class="btn btn-secondary" onclick="clearOutput()">🗑️ Clear Output</button>
                 </div>
             </div>
-
+            
             <!-- Route Evaluation Tab -->
             <div id="route-tab" class="tab-content">
                 <div class="section">
@@ -494,13 +491,12 @@
                         <label for="route_name">Route Name</label>
                         <input type="text" id="route_name" class="form-control" placeholder="EWL_AirportBranch" value="EWL_AirportBranch">
                     </div>
-                    
                     <div class="form-group">
                         <label for="route_stations">Route Stations (comma-separated, in order)</label>
                         <textarea id="route_stations" class="form-control textarea" placeholder="TanahMerah, Expo, ChangiAirport"></textarea>
                     </div>
                 </div>
-
+                
                 <div class="section">
                     <h3>Route Analysis</h3>
                     <p><em>Note: Make sure to configure the scenario in the "Scenario Builder" tab first.</em></p>
@@ -509,13 +505,12 @@
                     <button class="btn btn-secondary" onclick="clearRoute()">🗑️ Clear Route</button>
                 </div>
             </div>
-
+            
             <!-- Test Scenarios Tab -->
             <div id="presets-tab" class="tab-content">
                 <div class="section">
                     <h3>Load Preset Scenarios</h3>
                     <p>Load preset scenario quickly (good for demos/testing):</p>
-                    
                     <div class="form-group">
                         <label for="preset-select">Select Preset Scenario</label>
                         <select id="preset-select" class="form-control">
@@ -528,7 +523,6 @@
                             <option value="Scenario 6 (A6)">Scenario 6 (A6)</option>
                         </select>
                     </div>
-                    
                     <button class="btn btn-primary" onclick="loadPresetScenario()">📋 Load Preset</button>
                     
                     <div class="section" style="margin-top: 30px;">
@@ -545,7 +539,7 @@
                     </div>
                 </div>
             </div>
-
+            
             <!-- Logical Rules Tab -->
             <div id="rules-tab" class="tab-content">
                 <div class="section">
@@ -556,31 +550,30 @@
                     </div>
                 </div>
             </div>
-
+            
             <!-- Status Display -->
             <div id="status" class="status info" style="display: none;">
                 Ready to analyze scenarios and routes
             </div>
-
+            
             <!-- Results Display -->
             <div id="results" class="results" style="display: none;">
                 <!-- Results will be populated here -->
             </div>
         </div>
     </div>
-
+    
     <script>
         let currentTab = 'scenario';
-
+        
         // Initialize the application
         document.addEventListener('DOMContentLoaded', function() {
             loadLogicalRules();
             showStatus('Ready - Load a preset or configure scenario manually', 'info');
         });
-
+        
         async function loadPresetScenario() {
             const presetName = document.getElementById('preset-select').value;
-            
             if (!presetName) {
                 showStatus('Please select a preset scenario', 'error');
                 return;
@@ -615,13 +608,14 @@
                 
                 // Switch to scenario tab
                 showTab('scenario');
+                
                 showStatus(`Loaded preset: ${presetName}. Next: click "Run Both" to analyze.`, 'success');
                 
             } catch (error) {
                 showStatus(`Error loading preset: ${error.message}`, 'error');
             }
         }
-
+        
         async function runBothAnalyses() {
             showStatus('Running both analyses...', 'loading');
             
@@ -633,12 +627,12 @@
             
             showStatus('Both analyses completed', 'success');
         }
-
+        
         function clearOutput() {
             document.getElementById('results').style.display = 'none';
             document.getElementById('results').innerHTML = '';
         }
-
+        
         function showTab(tabName) {
             // Hide all tab contents
             document.querySelectorAll('.tab-content').forEach(content => {
@@ -658,18 +652,18 @@
             
             currentTab = tabName;
         }
-
+        
         function showStatus(message, type = 'info') {
             const status = document.getElementById('status');
             status.textContent = message;
             status.className = `status ${type}`;
             status.style.display = 'block';
         }
-
+        
         function hideStatus() {
             document.getElementById('status').style.display = 'none';
         }
-
+        
         async function loadLogicalRules() {
             try {
                 const response = await fetch('/api/rules');
@@ -681,13 +675,11 @@
                 data.rules.forEach(rule => {
                     const card = document.createElement('div');
                     card.className = 'rule-card';
-                    
                     card.innerHTML = `
                         <h4>Rule ${rule.id}</h4>
                         <div class="rule-description">${rule.description}</div>
                         <div class="rule-logic">${rule.plain_english}</div>
                     `;
-                    
                     grid.appendChild(card);
                 });
                 
@@ -695,7 +687,7 @@
                 console.error('Error loading logical rules:', error);
             }
         }
-
+        
         function getScenarioData() {
             return {
                 mode: document.getElementById('mode').value,
@@ -708,14 +700,14 @@
                 served_by_tel: document.getElementById('served_by_tel').value
             };
         }
-
+        
         function getRouteData() {
             return {
                 name: document.getElementById('route_name').value,
                 stations: document.getElementById('route_stations').value
             };
         }
-
+        
         async function checkConsistency() {
             const scenarioData = getScenarioData();
             
@@ -742,7 +734,7 @@
                 showStatus(`Error: ${error.message}`, 'error');
             }
         }
-
+        
         async function evaluateRoute() {
             const scenarioData = getScenarioData();
             const routeData = getRouteData();
@@ -778,7 +770,7 @@
                 showStatus(`Error: ${error.message}`, 'error');
             }
         }
-
+        
         function appendConsistencyResults(data) {
             const resultsContainer = document.getElementById('results');
             
@@ -837,7 +829,7 @@
             
             resultsContainer.appendChild(section);
         }
-
+        
         function appendRouteResults(data, routeName) {
             const resultsContainer = document.getElementById('results');
             
@@ -910,7 +902,7 @@
             
             resultsContainer.appendChild(section);
         }
-
+        
         async function runFullAnalysis() {
             const scenarioData = getScenarioData();
             const routeData = getRouteData();
@@ -947,7 +939,7 @@
                 showStatus(`Error: ${error.message}`, 'error');
             }
         }
-
+        
         function displayConsistencyResults(data) {
             const resultsContainer = document.getElementById('results');
             resultsContainer.innerHTML = '';
@@ -986,7 +978,7 @@
             resultsContainer.appendChild(section);
             resultsContainer.style.display = 'block';
         }
-
+        
         function displayRouteResults(data) {
             const resultsContainer = document.getElementById('results');
             resultsContainer.innerHTML = '';
@@ -1036,7 +1028,7 @@
             resultsContainer.appendChild(section);
             resultsContainer.style.display = 'block';
         }
-
+        
         function displayFullResults(data) {
             const resultsContainer = document.getElementById('results');
             resultsContainer.innerHTML = '';
@@ -1117,7 +1109,7 @@
             resultsContainer.appendChild(routeSection);
             resultsContainer.style.display = 'block';
         }
-
+        
         function clearScenario() {
             document.getElementById('mode').value = 'today';
             document.getElementById('status').value = 'normal';
@@ -1127,15 +1119,13 @@
             document.getElementById('open_edges').value = '';
             document.getElementById('recommended_routes').value = '';
             document.getElementById('served_by_tel').value = '';
-            
             document.getElementById('results').style.display = 'none';
             showStatus('Scenario cleared', 'info');
         }
-
+        
         function clearRoute() {
             document.getElementById('route_name').value = 'EWL_AirportBranch';
             document.getElementById('route_stations').value = '';
-            
             showStatus('Route cleared', 'info');
         }
     </script>

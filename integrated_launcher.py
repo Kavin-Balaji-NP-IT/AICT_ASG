@@ -44,15 +44,15 @@ class IntegratedLauncher:
     def print_banner(self):
         """Print the system banner"""
         print("=" * 80)
-        print("🚇 ChangiLink AI - Integrated Transportation Intelligence System")
+        print("ChangiLink AI - Integrated Transportation Intelligence System")
         print("=" * 80)
-        print("🎯 Comprehensive MRT Network Analysis & Planning Suite")
+        print("Comprehensive MRT Network Analysis & Planning Suite")
         print()
-        print("📋 Available Systems:")
+        print("Available Systems:")
         for name, config in self.systems.items():
             print(f"   • {name}: {config['description']}")
         print()
-        print("🌐 Web Interfaces:")
+        print("Web Interfaces:")
         for name, config in self.systems.items():
             print(f"   • {name}: {config['url']}")
         print("=" * 80)
@@ -60,7 +60,7 @@ class IntegratedLauncher:
     
     def check_dependencies(self):
         """Check if required dependencies are installed"""
-        print("🔍 Checking dependencies...")
+        print("Checking dependencies...")
         
         required_packages = ['flask']
         missing_packages = []
@@ -75,7 +75,7 @@ class IntegratedLauncher:
         
         if missing_packages:
             print(f"\n⚠️  Missing packages: {', '.join(missing_packages)}")
-            print("📦 Install with: pip install " + " ".join(missing_packages))
+            print("Install with: pip install " + " ".join(missing_packages))
             return False
         
         print("✅ All dependencies satisfied!")
@@ -84,7 +84,7 @@ class IntegratedLauncher:
     def start_system(self, name, config):
         """Start a single system"""
         try:
-            print(f"🚀 Starting {name}...")
+            print(f"Starting {name}...")
             
             # Change to system directory
             os.chdir(config['dir'])
@@ -114,14 +114,14 @@ class IntegratedLauncher:
     
     def wait_for_systems(self):
         """Wait for all systems to be ready"""
-        print("\n⏳ Waiting for systems to initialize...")
+        print("\nWaiting for systems to initialize...")
         time.sleep(5)  # Give systems time to start
         print("   ✅ Systems should be ready now")
         return list(self.systems.keys())
     
     def open_browsers(self):
         """Open web browsers for all systems"""
-        print("\n🌐 Opening web interfaces...")
+        print("\nOpening web interfaces...")
         
         # Create a main dashboard HTML
         self.create_dashboard()
@@ -130,11 +130,6 @@ class IntegratedLauncher:
         dashboard_path = self.base_dir / 'dashboard.html'
         webbrowser.open(f'file://{dashboard_path.absolute()}')
         print("   ✅ Main dashboard opened")
-        
-        # Optional: Open individual systems
-        # for name, config in self.systems.items():
-        #     webbrowser.open(config['url'])
-        #     print(f"   ✅ {name} opened")
     
     def create_dashboard(self):
         """Create a main dashboard HTML file"""
@@ -271,7 +266,7 @@ class IntegratedLauncher:
 <body>
     <div class="container">
         <div class="header">
-            <h1>🚇 ChangiLink AI</h1>
+            <h1>ChangiLink AI</h1>
             <p>Integrated Transportation Intelligence System</p>
         </div>
         
@@ -314,7 +309,7 @@ class IntegratedLauncher:
         </div>
         
         <div class="footer">
-            <p>🎯 All systems operational and ready for analysis</p>
+            <p>All systems operational and ready for analysis</p>
             <p style="margin-top: 10px; opacity: 0.8;">
                 Route Planning: localhost:5000 | Logical Inference: localhost:5001 | Crowding Risk: localhost:5002
             </p>
@@ -357,7 +352,7 @@ class IntegratedLauncher:
     
     def monitor_systems(self):
         """Monitor running systems"""
-        print("\n📊 System Monitor:")
+        print("\nSystem Monitor:")
         print("   Press Ctrl+C to stop all systems")
         print("   Systems running in background...")
         
@@ -371,7 +366,7 @@ class IntegratedLauncher:
                         print(f"   ⚠️  {proc_info['name']} has stopped")
                 
         except KeyboardInterrupt:
-            print("\n\n🛑 Shutting down all systems...")
+            print("\n\nShutting down all systems...")
             self.cleanup()
     
     def cleanup(self):
@@ -399,7 +394,7 @@ class IntegratedLauncher:
             print("\n❌ Please install missing dependencies before continuing.")
             return
         
-        print("\n🚀 Starting all systems...")
+        print("\nStarting all systems...")
         
         # Start all systems
         failed_systems = []
@@ -416,8 +411,8 @@ class IntegratedLauncher:
         # Open browsers
         self.open_browsers()
         
-        print("\n🎉 ChangiLink AI is ready!")
-        print("\n📋 Quick Start Guide:")
+        print("\nChangiLink AI is ready!")
+        print("\nQuick Start Guide:")
         print("   1. Use the main dashboard to access all systems")
         print("   2. Route Planning: Plan optimal MRT routes")
         print("   3. Logical Inference: Validate service advisories")
