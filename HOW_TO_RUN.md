@@ -119,4 +119,3 @@ When everything works correctly, you'll see:
    ```
 3. Check the main README.md for detailed troubleshooting
 
-**Happy exploring! 🎉**
