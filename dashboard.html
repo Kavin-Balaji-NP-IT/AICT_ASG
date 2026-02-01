@@ -1,0 +1,212 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChangiLink AI - Main Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .systems-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            padding: 40px;
+        }
+        
+        .system-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        
+        .system-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            border-color: #3498db;
+        }
+        
+        .system-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+        
+        .system-title {
+            font-size: 1.5em;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .system-description {
+            color: #666;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+        
+        .system-button {
+            background: #3498db;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .system-button:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .footer {
+            background: #34495e;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #27ae60;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚇 ChangiLink AI</h1>
+            <p>Integrated Transportation Intelligence System</p>
+        </div>
+        
+        <div class="systems-grid">
+            <div class="system-card">
+                <div class="system-icon">🗺️</div>
+                <div class="system-title">Route Planning</div>
+                <div class="system-description">
+                    Advanced pathfinding with A*, BFS, DFS, and GBFS algorithms.
+                    Compare performance across today's and future MRT networks.
+                </div>
+                <a href="http://localhost:5000" class="system-button" target="_blank">
+                    <span class="status-indicator"></span>Launch Route Planner
+                </a>
+            </div>
+            
+            <div class="system-card">
+                <div class="system-icon">🧠</div>
+                <div class="system-title">Logical Inference</div>
+                <div class="system-description">
+                    Service advisory consistency checking and route validation.
+                    Logical reasoning for transportation decision making.
+                </div>
+                <a href="http://localhost:5001" class="system-button" target="_blank">
+                    <span class="status-indicator"></span>Launch Logic System
+                </a>
+            </div>
+            
+            <div class="system-card">
+                <div class="system-icon">📊</div>
+                <div class="system-title">Crowding Risk</div>
+                <div class="system-description">
+                    Bayesian network analysis for crowding risk assessment.
+                    Predictive modeling for passenger flow management.
+                </div>
+                <a href="http://localhost:5002" class="system-button" target="_blank">
+                    <span class="status-indicator"></span>Launch Risk Analysis
+                </a>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>🎯 All systems operational and ready for analysis</p>
+            <p style="margin-top: 10px; opacity: 0.8;">
+                Route Planning: localhost:5000 | Logical Inference: localhost:5001 | Crowding Risk: localhost:5002
+            </p>
+        </div>
+    </div>
+    
+    <script>
+        // Check system status periodically
+        function checkSystemStatus() {
+            const systems = [
+                {name: 'Route Planning', url: 'http://localhost:5000'},
+                {name: 'Logical Inference', url: 'http://localhost:5001'},
+                {name: 'Crowding Risk', url: 'http://localhost:5002'}
+            ];
+            
+            systems.forEach(system => {
+                fetch(system.url)
+                    .then(response => {
+                        if (response.ok) {
+                            console.log(`✅ ${system.name} is running`);
+                        }
+                    })
+                    .catch(error => {
+                        console.log(`⚠️ ${system.name} may be starting...`);
+                    });
+            });
+        }
+        
+        // Check status on load and every 30 seconds
+        checkSystemStatus();
+        setInterval(checkSystemStatus, 30000);
+    </script>
+</body>
+</html>
+        
